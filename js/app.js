@@ -4,18 +4,19 @@
 const CONFIG = {
   rangoT: [-6, 12],          // horas respecto al hallazgo
   rangoTemp: [0, 45],        // °C
-  campo: { columnas: 25, filas: 18, largo: 16 },
+  campo: { columnas: 25, filas: 18, largo: 13 },
   pasoRK4: 0.01,             // h; error ~1e-10, suficiente para la tabla < 0.001 %
   duracionAnimacion: 600,    // ms
   margen: { izq: 54, der: 14, sup: 14, inf: 56 },
   ejercicio: { Ta: 20, hallazgo: 22 * 60, T0: 30, t1: 1, T1: 28, Tvida: 37 },
   colores: {
-    fondo: '#170910', rejilla: 'rgba(244,114,182,0.08)', ejes: '#6b2a45', texto: '#d6a2b8', textoTenue: '#9b6b80',
-    textoClaro: '#fde7ef', campo: '244,114,182', isoclina: '#e879f9', equilibrio: '#fecdd3', vida: '#f43f5e',
-    caso: '#fb7185', muerte: '#ff1f4b', marcador: '#ffffff', hallazgo: 'rgba(244,63,94,0.45)',
-    cruz: 'rgba(253,231,239,0.25)', etiquetaFondo: 'rgba(23,9,16,0.85)', tooltipFondo: 'rgba(29,12,21,0.95)', tooltipBorde: '#4b1f34',
+    // Guías (campo, rejilla, isoclinas) en tonos apagados; la curva y la muerte son lo que resalta
+    fondo: '#150e12', rejilla: 'rgba(255,255,255,0.035)', ejes: 'rgba(255,255,255,0.14)', texto: '#a8949d', textoTenue: '#7a6870',
+    textoClaro: '#f2e9ed', campo: '168,148,157', isoclina: 'rgba(196,161,217,0.7)', equilibrio: '#d9c7ce', vida: 'rgba(244,63,94,0.75)',
+    caso: '#f472b6', muerte: '#f43f5e', marcador: '#ffffff', hallazgo: 'rgba(255,255,255,0.18)',
+    cruz: 'rgba(255,255,255,0.18)', etiquetaFondo: 'rgba(21,14,18,0.85)', tooltipFondo: 'rgba(26,18,23,0.96)', tooltipBorde: 'rgba(255,255,255,0.12)',
   },
-  paleta: ['#f472b6', '#c084fc', '#fda4af', '#e879f9', '#fb923c', '#f9a8d4', '#a78bfa', '#fca5a5'],
+  paleta: ['#7dd3fc', '#c4b5fd', '#fcd34d', '#86efac', '#fda4af', '#f9a8d4', '#a5b4fc', '#fdba74'],
 };
 
 // ===== Modelo: funciones puras =====
@@ -109,7 +110,7 @@ const Estado = {
     Object.assign(this, {
       Ta: e.Ta, hallazgo: e.hallazgo, T0: e.T0, t1: e.t1, T1: e.T1, Tvida: e.Tvida,
       k: Modelo.calcularK(e.T0, e.T1, e.t1, e.Ta),
-      ver: { campo: true, isoclinas: true, equilibrio: true, vida: true },
+      ver: { campo: true, isoclinas: false, equilibrio: true, vida: true },
       soluciones: [], caso: null, hover: null,
     });
   },
@@ -156,7 +157,7 @@ const Render = {
     if (Estado.ver.campo) this.dibujarCampo();
     if (Estado.ver.isoclinas) this.dibujarIsoclinas();
     if (Estado.ver.equilibrio) this.dibujarEquilibrio();
-    if (Estado.ver.vida) this.lineaHorizontal(Estado.Tvida, CONFIG.colores.vida, [10, 4], `Temperatura en vida (${Formato.num(Estado.Tvida, 1)} °C)`, 'izq');
+    if (Estado.ver.vida) this.lineaHorizontal(Estado.Tvida, CONFIG.colores.vida, [10, 4], `Temperatura en vida (${Formato.num(Estado.Tvida, 1)} °C)`, 'der');
     const animando = this.dibujarCurvas(ahora);
     this.dibujarMarcadores();
     c.restore();
@@ -166,7 +167,7 @@ const Render = {
   },
 
   // --- utilidades de dibujo ---
-  etiqueta(texto, x, y, color, alinear = 'left', fuente = '600 12px system-ui, sans-serif') {
+  etiqueta(texto, x, y, color, alinear = 'left', fuente = '500 11px system-ui, sans-serif') {
     const c = this.ctx;
     c.font = fuente;
     const w = c.measureText(texto).width, x0 = alinear === 'right' ? x - w : alinear === 'center' ? x - w / 2 : x;
@@ -252,7 +253,7 @@ const Render = {
     const largo = Math.min(cfg.largo, a.w / cols * 0.75, a.h / filas * 0.75);
     const [Tmin, Tmax] = CONFIG.rangoTemp;
     const mMax = Estado.k * Math.max(Math.abs(Tmax - Estado.Ta), Math.abs(Tmin - Estado.Ta)) || 1;
-    c.lineWidth = 1.4; c.lineCap = 'round';
+    c.lineWidth = 1.1; c.lineCap = 'round';
     for (let i = 0; i < cols; i++) {
       for (let j = 0; j < filas; j++) {
         const px = a.x + (i + .5) * a.w / cols, py = a.y + (j + .5) * a.h / filas;
@@ -260,11 +261,11 @@ const Render = {
         // Pendiente en pantalla: 1 h horizontal frente a m °C vertical
         const dx = Escala.pxPorHora(), dy = -m * Escala.pxPorGrado(), L = Math.hypot(dx, dy);
         const ux = dx / L * largo / 2, uy = dy / L * largo / 2, ang = Math.atan2(uy, ux);
-        c.strokeStyle = `rgba(${CONFIG.colores.campo},${0.2 + 0.55 * Math.abs(m) / mMax})`;
+        c.strokeStyle = `rgba(${CONFIG.colores.campo},${0.14 + 0.3 * Math.abs(m) / mMax})`;
         c.beginPath();
         c.moveTo(px - ux, py - uy); c.lineTo(px + ux, py + uy);
-        c.moveTo(px + ux, py + uy); c.lineTo(px + ux - 4 * Math.cos(ang - .5), py + uy - 4 * Math.sin(ang - .5));
-        c.moveTo(px + ux, py + uy); c.lineTo(px + ux - 4 * Math.cos(ang + .5), py + uy - 4 * Math.sin(ang + .5));
+        c.moveTo(px + ux, py + uy); c.lineTo(px + ux - 3 * Math.cos(ang - .5), py + uy - 3 * Math.sin(ang - .5));
+        c.moveTo(px + ux, py + uy); c.lineTo(px + ux - 3 * Math.cos(ang + .5), py + uy - 3 * Math.sin(ang + .5));
         c.stroke();
       }
     }
@@ -274,7 +275,7 @@ const Render = {
   dibujarIsoclinas() {
     const [Tmin, Tmax] = CONFIG.rangoTemp, { k, Ta } = Estado;
     const cMin = -k * (Tmax - Ta), cMax = -k * (Tmin - Ta);
-    const paso = pasoBonito((cMax - cMin) / 6);
+    const paso = pasoBonito((cMax - cMin) / 4);
     for (const c of Escala.ticks(cMin, cMax, paso)) {
       if (Math.abs(c) < paso / 2) continue;   // c = 0 es el equilibrio
       this.lineaHorizontal(Modelo.isoclina(c, Estado), CONFIG.colores.isoclina, [2, 5], `dT/dt = ${Formato.num(c, 2)}`, 'der', 1.2);
@@ -308,7 +309,7 @@ const Render = {
     if (!Estado.caso) return;
     const { T0, t1, T1, Tvida } = Estado, col = CONFIG.colores;
     this.punto(0, T0, col.marcador, 6);
-    this.etiqueta(`Hallazgo (0, ${Formato.num(T0, 1)})`, Escala.x(0) + 10, Escala.y(T0) + 20, col.marcador);
+    this.etiqueta(`Hallazgo (0, ${Formato.num(T0, 1)})`, Escala.x(0) - 10, Escala.y(T0) - 10, col.marcador, 'right');
     this.punto(t1, T1, col.marcador, 6);
     this.etiqueta(`(${Formato.num(t1, 1)}, ${Formato.num(T1, 1)})`, Escala.x(t1) + 10, Escala.y(T1) + 20, col.marcador);
     const { tm, valido } = Estado.analizar();
@@ -326,7 +327,7 @@ const Render = {
   dibujarGuia() {
     if (Estado.soluciones.length || Estado.caso) return;
     const a = Escala.area;
-    this.etiqueta('Haz clic en el plano para trazar una solución', a.x + a.w / 2, a.y + 30, CONFIG.colores.textoClaro, 'center', '600 15px system-ui, sans-serif');
+    this.etiqueta('Haz clic en el plano para trazar una solución', a.x + a.w / 2, a.y + 30, CONFIG.colores.textoClaro, 'center', '500 13px system-ui, sans-serif');
   },
 
   dibujarTooltip({ x, y }) {
@@ -464,53 +465,98 @@ function generarPasos() {
   ].join('');
 }
 
-// ===== Decoración: etapa aproximada de descomposición según horas desde la muerte =====
+// ===== Decoración: ilustración del cuerpo según horas desde la muerte =====
 const Cadaver = {
-  // Etapas forenses simplificadas; imagen = índice de img/etapa-N.jpg (tiempos orientativos)
+  // Etapas forenses simplificadas (tiempos orientativos a ~20 °C)
   ETAPAS: [
-    { desde: -Infinity, imagen: 1, nombre: 'Con vida', desc: 'Antes de la hora estimada de muerte: temperatura normal.' },
-    { desde: 0, imagen: 1, nombre: 'Etapa fresca: palidez', desc: 'La sangre deja de circular y la piel palidece (pallor mortis).' },
-    { desde: 2, imagen: 1, nombre: 'Etapa fresca: livideces', desc: 'La sangre se acumula en las zonas bajas (livor mortis) y empieza el rigor mortis.' },
-    { desde: 6, imagen: 2, nombre: 'Autólisis', desc: 'Las células se destruyen con sus propias enzimas; rigor mortis completo.' },
-    { desde: 24, imagen: 3, nombre: 'Putrefacción temprana', desc: 'Las bacterias del intestino avanzan y la piel se torna verdosa.' },
-    { desde: 72, imagen: 4, nombre: 'Hinchazón', desc: 'Los gases de la descomposición hinchan el cuerpo.' },
-    { desde: 168, imagen: 5, nombre: 'Decaimiento activo', desc: 'Se liberan los gases y los tejidos blandos se pierden rápidamente.' },
-    { desde: 480, imagen: 6, nombre: 'Decadencia avanzada', desc: 'Quedan sobre todo huesos, cartílagos y restos secos.' },
-    { desde: 1200, imagen: 7, nombre: 'Esqueletización', desc: 'Solo queda el esqueleto.' },
+    { desde: -Infinity, nombre: 'Con vida', desc: 'Antes de la hora estimada de muerte: temperatura normal.' },
+    { desde: 0, nombre: 'Etapa fresca: palidez', desc: 'La sangre deja de circular y la piel palidece (pallor mortis). El cuerpo empieza a enfriarse.' },
+    { desde: 2, nombre: 'Etapa fresca: livideces', desc: 'La sangre baja a las zonas inferiores y forma manchas moradas (livor mortis). La rigidez empieza por la mandíbula.' },
+    { desde: 8, nombre: 'Etapa fresca: rigidez máxima', desc: 'Rigor mortis en todo el cuerpo y livideces fijas. Por fuera todavía no hay descomposición visible.' },
+    { desde: 24, nombre: 'Putrefacción temprana', desc: 'Cede la rigidez y aparece la mancha verde en el abdomen: primera señal visible de descomposición.' },
+    { desde: 72, nombre: 'Hinchazón', desc: 'Los gases de las bacterias hinchan el cuerpo y las venas se marcan (marmoleado).' },
+    { desde: 168, nombre: 'Decaimiento activo', desc: 'Los gases escapan, la piel se oscurece y los tejidos se pierden rápido; llegan los insectos.' },
+    { desde: 480, nombre: 'Decadencia avanzada', desc: 'Quedan pocos tejidos blandos y los huesos empiezan a verse.' },
+    { desde: 1200, nombre: 'Esqueletización', desc: 'Solo queda el esqueleto, que se blanquea con el tiempo.' },
   ],
-  HORAS_MAX: 1500,   // ~2 meses: el deslizador llega hasta la esqueletización
+  // Fotogramas clave del aspecto; entre ellos se interpola para que el cambio sea continuo
+  CLAVES: [
+    { h: -1, piel: '#e8b796', hueso: '#d9cba4', livor: 0, verde: 0, hinchazon: 0, marmol: 0, carne: 1, moscas: 0 },
+    { h: 0, piel: '#ebc8b5', hueso: '#d9cba4', livor: 0, verde: 0, hinchazon: 0, marmol: 0, carne: 1, moscas: 0 },
+    { h: 2, piel: '#efdacd', hueso: '#d9cba4', livor: 0.3, verde: 0, hinchazon: 0, marmol: 0, carne: 1, moscas: 0 },
+    { h: 12, piel: '#ecdcd2', hueso: '#d9cba4', livor: 0.9, verde: 0, hinchazon: 0, marmol: 0, carne: 1, moscas: 0 },
+    { h: 24, piel: '#e3d6c6', hueso: '#d9cba4', livor: 0.9, verde: 0.25, hinchazon: 0, marmol: 0, carne: 1, moscas: 0 },
+    { h: 48, piel: '#cfcfae', hueso: '#d9cba4', livor: 0.8, verde: 0.7, hinchazon: 0.25, marmol: 0.3, carne: 1, moscas: 0.1 },
+    { h: 120, piel: '#9fa877', hueso: '#d9cba4', livor: 0.5, verde: 1, hinchazon: 1, marmol: 0.9, carne: 1, moscas: 0.5 },
+    { h: 240, piel: '#5e4630', hueso: '#d4c49a', livor: 0.2, verde: 0.4, hinchazon: 0.15, marmol: 0.5, carne: 0.85, moscas: 1 },
+    { h: 600, piel: '#4a3524', hueso: '#d9cba4', livor: 0, verde: 0, hinchazon: 0, marmol: 0.2, carne: 0.35, moscas: 0.4 },
+    { h: 1200, piel: '#3d2d20', hueso: '#e4dcc4', livor: 0, verde: 0, hinchazon: 0, marmol: 0, carne: 0, moscas: 0 },
+    { h: 1500, piel: '#3d2d20', hueso: '#f0ebdd', livor: 0, verde: 0, hinchazon: 0, marmol: 0, carne: 0, moscas: 0 },
+  ],
+  HORAS_MAX: 1500,   // ~62 días: llega a la esqueletización
 
   iniciar() {
-    const mesa = UI.$('cuerpoFotos');
-    for (let i = 1; i <= 7; i++) {
-      const img = document.createElement('img');
-      img.src = `img/etapa-${i}.jpg`;
-      img.alt = '';
-      img.dataset.imagen = i;
-      mesa.prepend(img);
-    }
+    const $ = UI.$;
     // Escala cúbica: las primeras horas (lo que mide el modelo) ocupan casi todo el recorrido
-    UI.$('explorar').addEventListener('input', e => this.mostrarHoras(this.HORAS_MAX * (e.target.value / 100) ** 3, false));
+    $('explorar').addEventListener('input', e => this.mostrarHoras(this.HORAS_MAX * (e.target.value / 100) ** 3, 'deslizador'));
+    $('explorarDias').addEventListener('input', e => {
+      const d = parseFloat(e.target.value);
+      if (Number.isFinite(d)) this.mostrarHoras(Math.min(this.HORAS_MAX, Math.max(0, d * 24)), 'dias');
+    });
   },
 
   // t en horas respecto al hallazgo (curva del caso)
   mostrar(t) {
     const { tm, valido } = Estado.analizar();
-    this.mostrarHoras(valido ? t - tm : NaN, true);
+    this.mostrarHoras(valido ? t - tm : NaN, 'curva');
   },
 
-  mostrarHoras(horas, moverDeslizador) {
+  aspecto(horas) {
+    const c = this.CLAVES, h = Number.isFinite(horas) ? horas : c[0].h;
+    const i = c.findIndex(k => k.h > h);
+    if (i === 0) return c[0];
+    if (i === -1) return c.at(-1);
+    const a = c[i - 1], b = c[i], p = (h - a.h) / (b.h - a.h);
+    const r = {};
+    for (const clave in a) r[clave] = typeof a[clave] === 'string' ? mezclarColor(a[clave], b[clave], p) : a[clave] + (b[clave] - a[clave]) * p;
+    return r;
+  },
+
+  // La rigidez sube de 2 a 12 h, se mantiene hasta las 24 h y desaparece hacia las 40 h
+  rigidez: h => !(h >= 2) ? 0 : h < 12 ? (h - 2) / 10 : h < 24 ? 1 : Math.max(0, 1 - (h - 24) / 16),
+
+  pintar(horas) {
+    const $ = UI.$, a = this.aspecto(horas), muerto = horas >= 0;
+    $('silueta').setAttribute('color', a.piel);
+    $('esqueleto').setAttribute('color', a.hueso);
+    $('carne').setAttribute('opacity', a.carne);
+    $('esqueleto').setAttribute('opacity', Math.min(1, (1 - a.carne) * 2));
+    // La hinchazón ensancha el cuerpo alrededor del eje central (x = 60)
+    $('carne').setAttribute('transform', `translate(60 0) scale(${1 + 0.35 * a.hinchazon} 1) translate(-60 0)`);
+    $('livor').setAttribute('opacity', a.livor);
+    $('mancha').setAttribute('opacity', a.verde);
+    $('mancha').setAttribute('rx', 6 + 26 * a.verde);
+    $('mancha').setAttribute('ry', 6 + 30 * a.verde);
+    $('marmoleado').setAttribute('opacity', a.marmol);
+    $('moscas').setAttribute('opacity', a.moscas);
+    $('pelo').setAttribute('opacity', Math.min(1, a.carne * 1.5));
+    $('ojosAbiertos').style.display = muerto ? 'none' : '';
+    $('ojosCerrados').style.display = muerto ? '' : 'none';
+
+    $('senLivor').style.width = `${100 * (muerto ? a.livor : 0)}%`;
+    $('senRigidez').style.width = `${100 * this.rigidez(horas)}%`;
+    $('senPutre').style.width = `${100 * Math.min(1, Math.max(0, (horas - 24) / 216))}%`;   // de 24 h a 10 días
+  },
+
+  mostrarHoras(horas, origen) {
     const $ = UI.$, { tm, valido } = Estado.analizar();
-    const t = horas + tm;
-    const T = Modelo.solucionExacta(t, 0, Estado.T0, Estado);
+    const T = Modelo.solucionExacta(horas + tm, 0, Estado.T0, Estado);
     const etapa = Number.isFinite(horas) ? this.ETAPAS.findLast(e => horas >= e.desde) : null;
 
-    const visible = etapa ? etapa.imagen : 1;
-    $('cuerpoFotos').querySelectorAll('img').forEach(img => {
-      img.classList.toggle('visible', +img.dataset.imagen === visible);
-      img.classList.toggle('con-vida', etapa === this.ETAPAS[0]);
-    });
-    if (moverDeslizador) $('explorar').value = Number.isFinite(horas) ? 100 * Math.cbrt(Math.max(0, horas) / this.HORAS_MAX) : 0;
+    this.pintar(horas);
+    const h = Number.isFinite(horas) ? Math.max(0, horas) : 0;
+    if (origen !== 'deslizador') $('explorar').value = 100 * Math.cbrt(h / this.HORAS_MAX);
+    if (origen !== 'dias') $('explorarDias').value = (h / 24).toFixed(1);
 
     $('termoNivel').style.height = `${100 * Math.min(1, Math.max(0, (Number.isFinite(T) ? T : 0) / CONFIG.rangoTemp[1]))}%`;
     $('termoTexto').textContent = Formato.grados(T);
@@ -521,6 +567,13 @@ const Cadaver = {
     $('cuerpoDesc').textContent = etapa ? etapa.desc : 'Los datos actuales no dan una hora de muerte válida.';
   },
 };
+
+// Mezcla lineal de dos colores #rrggbb (p = 0 → a, p = 1 → b)
+function mezclarColor(a, b, p) {
+  const rgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  const [x, y] = [rgb(a), rgb(b)];
+  return '#' + x.map((v, i) => Math.round(v + (y[i] - v) * p).toString(16).padStart(2, '0')).join('');
+}
 
 // ===== Escenarios de la pestaña Discusión =====
 const Escenarios = {
