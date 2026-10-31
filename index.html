@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Enfriamiento de Newton · Hora de la muerte</title>
+<link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+<header class="cabecera">
+  <svg class="ecg" viewBox="0 0 1000 46" preserveAspectRatio="none" aria-hidden="true">
+    <path pathLength="1000" d="M0 30 H150 l10 -5 l10 5 H200 l6 6 l10 -30 l9 34 l7 -10 H330 l12 -6 l12 6 H520 l10 -5 l10 5 H570 l6 6 l10 -30 l9 34 l7 -10 H700 l12 -6 l12 6 H1000"/>
+  </svg>
+  <div>
+    <h1>Ley de Enfriamiento de Newton · <span>Hora de la muerte</span></h1>
+    <p class="ecuacion">dT/dt = −k·(T − T<sub>a</sub>)</p>
+  </div>
+  <div class="indicadores">
+    <div class="indicador"><span>Constante k</span><strong id="iK">—</strong></div>
+    <div class="indicador"><span>Ambiente Ta</span><strong id="iTa">—</strong></div>
+    <div class="indicador"><span>Soluciones</span><strong id="iSol">0</strong></div>
+    <div class="indicador muerte"><span>Hora de muerte</span><strong id="iMuerte">—</strong></div>
+  </div>
+</header>
+
+<nav class="pestanas" role="tablist">
+  <button role="tab" data-pestana="simulador" aria-selected="true">① Simulador</button>
+  <button role="tab" data-pestana="pasos" aria-selected="false">② Cálculos paso a paso</button>
+  <button role="tab" data-pestana="discusion" aria-selected="false" hidden>③ Discusión</button>
+</nav>
+
+<main>
+  <section id="simulador" class="panel-pestana" role="tabpanel">
+    <div class="sim">
+      <aside class="cuerpo" aria-live="polite">
+        <h2>Estado del cuerpo</h2>
+        <div class="escena">
+          <div class="mesa" id="cuerpoFotos">
+            <span class="etiqueta-pie" id="etiquetaPie">—</span>
+          </div>
+          <div class="termo-col">
+            <span id="termoTexto">—</span>
+            <div class="termo"><div class="termo-nivel" id="termoNivel"></div></div>
+          </div>
+        </div>
+        <p class="cuerpo-etapa"><strong id="cuerpoEtapa">—</strong><span id="cuerpoTiempo"></span></p>
+        <label class="explorar">Explorar tiempo desde la muerte
+          <input type="range" id="explorar" min="0" max="100" step="0.5" value="0"></label>
+        <p class="cuerpo-desc" id="cuerpoDesc"></p>
+        <p class="cuerpo-ayuda">Pasa el cursor por la gráfica o mueve el deslizador. Tiempos aproximados: dependen del clima.</p>
+      </aside>
+      <div class="sim-centro">
+        <div class="lienzo-caja" id="lienzoCaja">
+          <canvas id="lienzo" aria-label="Plano tiempo-temperatura: haz clic para trazar una solución"></canvas>
+        </div>
+        <div class="controles">
+          <fieldset>
+            <legend>Parámetros de la EDO</legend>
+            <label class="deslizador"><span>k (1/h)</span>
+              <input type="range" id="kRango" min="0.01" max="1" step="0.0001">
+              <input type="number" id="kNum" min="0.01" max="1" step="0.0001" aria-label="k"></label>
+            <label class="deslizador"><span>Ta (°C)</span>
+              <input type="range" id="TaRango" min="0" max="40" step="0.1">
+              <input type="number" id="TaNum" min="0" max="40" step="0.1" aria-label="Ta"></label>
+          </fieldset>
+          <fieldset>
+            <legend>Datos del caso</legend>
+            <div class="rejilla-campos">
+              <label>Hora del hallazgo<input type="time" id="hallazgo"></label>
+              <label>T0 (°C) en t = 0<input type="number" id="T0" step="0.1"></label>
+              <label>t1 (h)<input type="number" id="t1" step="0.1" min="0.1"></label>
+              <label>T1 (°C) en t1<input type="number" id="T1" step="0.1"></label>
+              <label>T en vida (°C)<input type="number" id="Tvida" step="0.1"></label>
+            </div>
+            <div class="botones">
+              <button class="btn" id="btnK">Calcular k con la 2.ª medición</button>
+              <button class="btn primario" id="btnResolver">Resolver caso</button>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Mostrar</legend>
+            <div class="casillas">
+              <label><input type="checkbox" data-ver="campo">Campo de direcciones</label>
+              <label><input type="checkbox" data-ver="isoclinas">Isoclinas</label>
+              <label><input type="checkbox" data-ver="equilibrio">Equilibrio</label>
+              <label><input type="checkbox" data-ver="vida">Línea de 37 °C</label>
+            </div>
+            <div class="botones">
+              <button class="btn" id="btnLimpiar">Limpiar soluciones</button>
+              <button class="btn" id="btnReset">Restablecer ejercicio</button>
+            </div>
+          </fieldset>
+        </div>
+      </div>
+      <aside class="resultados" aria-live="polite">
+        <h2>Resultados</h2>
+        <dl>
+          <dt>Constante k</dt><dd id="rK">—</dd>
+          <dt>Solución del caso</dt><dd id="rFormula">—</dd>
+          <dt>Hora de muerte estimada</dt><dd id="rMuerte" class="destacado">—</dd>
+          <dt>Tiempo entre muerte y hallazgo</dt><dd id="rTranscurrido">—</dd>
+          <dt>T al momento del hallazgo</dt><dd id="rThallazgo">—</dd>
+        </dl>
+        <p class="mensaje" id="rMensaje"></p>
+      </aside>
+    </div>
+  </section>
+
+  <section id="pasos" class="panel-pestana" role="tabpanel" hidden>
+    <div class="contenido">
+      <article class="paso calculadora">
+        <h3><span class="num">🧮</span>Calculadora: haz tus propias preguntas</h3>
+        <p class="simple">💡 Escribe una hora o una temperatura; se usa la fórmula del caso con los valores actuales del simulador.</p>
+        <div class="calc-rejilla">
+          <div>
+            <label>¿Qué temperatura tenía el cuerpo a las…<input type="time" id="calcHora" value="21:00"></label>
+            <div class="calc-res eq" id="calcHoraRes"></div>
+          </div>
+          <div>
+            <label>¿A qué hora el cuerpo marcaba… (°C)<input type="number" id="calcTemp" value="33" step="0.1"></label>
+            <div class="calc-res eq" id="calcTempRes"></div>
+          </div>
+        </div>
+      </article>
+      <div id="pasosContenido"></div>
+    </div>
+  </section>
+
+  <section id="discusion" class="panel-pestana" role="tabpanel" hidden>
+    <div class="tarjetas">
+      <article class="tarjeta">
+        <h3>Distintas condiciones iniciales</h3>
+        <p>Sin importar la temperatura de partida, todas las curvas se acercan a la temperatura del cuarto. Además, <b>nunca se cruzan</b>: por cada punto pasa una única solución.</p>
+        <div class="botones"><button class="btn primario" data-escenario="condiciones">Ver en el simulador</button></div>
+      </article>
+      <article class="tarjeta">
+        <h3>Cuerpo más frío que el ambiente</h3>
+        <p>Si algo está más frío que el cuarto (una bebida sacada del refrigerador), la curva <b>sube</b> hacia Ta. El equilibrio atrae desde arriba y desde abajo: es <b>estable</b>.</p>
+        <div class="botones"><button class="btn primario" data-escenario="frio">Ver en el simulador</button></div>
+      </article>
+      <article class="tarjeta">
+        <h3>Efecto de k</h3>
+        <p>Un cuarto con corriente de aire enfría rápido (k grande): la muerte habría sido hace poco. Un cuerpo abrigado enfría lento (k pequeño): la muerte fue hace más tiempo.</p>
+        <div class="botones">
+          <button class="btn primario" data-escenario="aire">Corriente de aire (k = 0.45)</button>
+          <button class="btn" data-escenario="abrigado">Abrigado (k = 0.10)</button>
+        </div>
+      </article>
+      <article class="tarjeta">
+        <h3>Efecto de Ta</h3>
+        <p>Con el mismo k, en un cuarto frío la diferencia de temperatura es mayor y el cuerpo pierde calor más rápido. En verano el enfriamiento es lento y la hora estimada se adelanta.</p>
+        <div class="botones">
+          <button class="btn primario" data-escenario="invierno">Invierno (Ta = 5 °C)</button>
+          <button class="btn" data-escenario="verano">Verano (Ta = 26 °C)</button>
+        </div>
+      </article>
+      <article class="tarjeta">
+        <h3>Limitaciones del modelo</h3>
+        <ul>
+          <li>La ropa y el tamaño corporal cambian k.</li>
+          <li>Justo después de morir hay una <b>meseta</b>: la temperatura se mantiene casi constante unas horas.</li>
+          <li>Ta rara vez es constante (día/noche, calefacción).</li>
+        </ul>
+        <p>Por eso la estimación es un <b>intervalo aproximado</b>, no una hora exacta.</p>
+        <div class="botones"><button class="btn primario" data-escenario="limitaciones">Ver en el simulador</button></div>
+      </article>
+    </div>
+  </section>
+</main>
+
+<script src="js/app.js"></script>
+</body>
+</html>
