@@ -699,6 +699,16 @@ const UI = {
       actualizar();
     }));
 
+    // Si una ventana «?» no cabe a la derecha de la pantalla, se abre hacia la izquierda
+    const ajustarInfo = e => {
+      const info = e.target.closest?.('.info');
+      if (!info || info.classList.contains('derecha')) return;
+      info.classList.remove('volteado');
+      if (info.querySelector('.info-panel').getBoundingClientRect().right > innerWidth - 8) info.classList.add('volteado');
+    };
+    document.addEventListener('pointerover', ajustarInfo);
+    document.addEventListener('focusin', ajustarInfo);
+
     const lienzo = this.$('lienzo');
     const posicion = e => { const r = lienzo.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
     lienzo.addEventListener('click', e => {

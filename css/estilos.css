@@ -16,9 +16,10 @@
   --mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
 }
 * { box-sizing: border-box; }
-html, body { margin: 0; color: var(--texto); overflow-x: hidden;
+html, body { margin: 0; color: var(--texto);
   font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-variant-numeric: tabular-nums; }
-body { background: radial-gradient(1000px 500px at 0% 0%, rgba(244, 63, 94, .05), transparent 60%), var(--bg); min-height: 100vh; }
+/* «clip» recorta el desborde horizontal sin convertir el body en un segundo contenedor con scroll */
+body { background: radial-gradient(1000px 500px at 0% 0%, rgba(244, 63, 94, .05), transparent 60%), var(--bg); min-height: 100vh; overflow-x: clip; }
 button, input { font: inherit; color: inherit; }
 sub, sup { font-size: .7em; }
 :focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
@@ -334,11 +335,13 @@ input[type="number"]:focus, input[type="time"]:focus { outline: none; border-col
 .info-panel { position: absolute; top: calc(100% + 8px); left: -8px; z-index: 30; width: max-content; max-width: min(280px, 80vw);
   padding: var(--e3) var(--e4); border-radius: 12px; background: #1f171c; border: 1px solid var(--borde-fuerte); box-shadow: var(--sombra);
   font-size: var(--t-sm); font-weight: 400; line-height: 1.5; letter-spacing: normal; text-transform: none; text-align: left; color: var(--texto);
-  opacity: 0; visibility: hidden; transform: translateY(-4px); transition: opacity .15s, transform .15s, visibility .15s; }
+  display: none; }
 .info-panel b { color: var(--acento); font-weight: 600; }
-.info.derecha .info-panel { left: auto; right: -8px; }
-.info.arriba .info-panel { top: auto; bottom: calc(100% + 8px); transform: translateY(4px); }   /* para los que están al pie de la pantalla */
-.info:hover .info-panel, .info:focus-within .info-panel { opacity: 1; visibility: visible; transform: none; }
+.info:is(.derecha, .volteado) .info-panel { left: auto; right: -8px; }
+.info.arriba .info-panel { top: auto; bottom: calc(100% + 8px); }   /* para los que están al pie de la pantalla */
+/* Oculto con display:none para que no ocupe espacio ni ensanche la página */
+.info:hover .info-panel, .info:focus-within .info-panel { display: block; animation: aparecer-info .15s ease-out; }
+@keyframes aparecer-info { from { opacity: 0; } }
 /* El panel que contiene una ventana abierta se pone por encima de sus vecinos */
 :is(.cuerpo, .resultados, fieldset, .ajustes):has(.info:is(:hover, :focus-within)) { position: relative; z-index: 20; }
 .etapa-fila { display: inline-flex; align-items: center; gap: 6px; }
