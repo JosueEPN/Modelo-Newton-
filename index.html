@@ -7,12 +7,81 @@
 <link rel="stylesheet" href="css/estilos.css">
 </head>
 <body>
+<!-- Decoración de fondo: no recibe clics y queda detrás de los paneles -->
+<div class="escenario" aria-hidden="true">
+  <svg width="0" height="0" style="position:absolute">
+    <symbol id="murcielago" viewBox="0 0 46 22"><path d="M0 12 C8 4 16 4 20 10 C21 6 22 5 23 7 C24 5 25 6 26 10 C30 4 38 4 46 12 C39 10 35 13 33 17 C30 13 27 15 24.5 19 C23.5 17 22.5 17 21.5 19 C19 15 16 13 13 17 C11 13 7 10 0 12 Z"/></symbol>
+  </svg>
+  <svg class="luna" viewBox="0 0 160 160">
+    <defs>
+      <radialGradient id="gLunaHalo"><stop offset=".42" stop-color="#fbe9ee" stop-opacity=".32"/><stop offset="1" stop-color="#fbe9ee" stop-opacity="0"/></radialGradient>
+      <radialGradient id="gLuna" cx=".36" cy=".34" r=".78"><stop offset="0" stop-color="#fffaf5"/><stop offset=".55" stop-color="#eadbd3"/><stop offset="1" stop-color="#ab958e"/></radialGradient>
+      <radialGradient id="gCrater" cx=".62" cy=".62" r=".62"><stop offset="0" stop-color="#cdb9b0"/><stop offset=".78" stop-color="#b8a299"/><stop offset="1" stop-color="#f6ece5"/></radialGradient>
+      <clipPath id="clipLuna"><circle cx="80" cy="80" r="44"/></clipPath>
+      <filter id="fDifuso" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7"/></filter>
+      <filter id="fNube" x="-30%" y="-200%" width="160%" height="500%"><feGaussianBlur stdDeviation="3"/></filter>
+    </defs>
+    <circle cx="80" cy="80" r="78" fill="url(#gLunaHalo)"/>
+    <g clip-path="url(#clipLuna)">
+      <circle cx="80" cy="80" r="44" fill="url(#gLuna)"/>
+      <path d="M56 60 c8 -7 21 -5 25 4 c3 8 -6 13 -15 12 c-9 -1 -16 -10 -10 -16z" fill="#c4afa6" opacity=".55"/>
+      <path d="M84 88 c11 -5 21 2 20 11 c-1 8 -13 10 -20 6 c-6 -4 -7 -13 0 -17z" fill="#bfa99f" opacity=".5"/>
+      <path d="M60 96 c5 -3 11 -1 11 4 c0 4 -6 6 -10 4 c-3 -2 -4 -6 -1 -8z" fill="#c4afa6" opacity=".45"/>
+      <circle cx="70" cy="52" r="5" fill="url(#gCrater)"/><circle cx="98" cy="70" r="6.5" fill="url(#gCrater)"/>
+      <circle cx="62" cy="80" r="3.5" fill="url(#gCrater)"/><circle cx="88" cy="106" r="4" fill="url(#gCrater)"/>
+      <circle cx="104" cy="94" r="2.6" fill="url(#gCrater)"/><circle cx="78" cy="72" r="2.2" fill="url(#gCrater)"/>
+      <circle cx="108" cy="80" r="46" fill="#120b0f" opacity=".5" filter="url(#fDifuso)"/>
+    </g>
+    <g class="nubes" fill="#1a1015" filter="url(#fNube)">
+      <ellipse cx="30" cy="100" rx="40" ry="5" opacity=".8"/><ellipse cx="130" cy="62" rx="32" ry="4" opacity=".7"/>
+    </g>
+  </svg>
+  <svg class="murcielago m1"><use href="#murcielago"/></svg>
+  <svg class="murcielago m2"><use href="#murcielago"/></svg>
+  <svg class="murcielago m3"><use href="#murcielago"/></svg>
+  <svg class="murcielago m4"><use href="#murcielago"/></svg>
+  <svg class="murcielago m5"><use href="#murcielago"/></svg>
+  <svg class="cementerio" viewBox="0 0 1440 320" preserveAspectRatio="xMidYMax slice">
+    <defs>
+      <linearGradient id="gColina" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#21161c"/><stop offset="1" stop-color="#140d11"/></linearGradient>
+      <linearGradient id="gSuelo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b1d24"/><stop offset=".6" stop-color="#170f13"/><stop offset="1" stop-color="#120b0f"/></linearGradient>
+      <linearGradient id="gLapida" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4f3a45"/><stop offset=".45" stop-color="#36262f"/><stop offset="1" stop-color="#21171d"/></linearGradient>
+    </defs>
+    <path class="colina" d="M0 228 Q300 182 620 214 T1440 200 V320 H0 Z"/>
+    <g class="lejanas"><path d="M220 214 v-16 h-5 v-4 h5 v-5 h4 v5 h5 v4 h-5 v16 z"/><path d="M420 206 v-16 h-5 v-4 h5 v-5 h4 v5 h5 v4 h-5 v16 z"/><path d="M980 208 v-16 h-5 v-4 h5 v-5 h4 v5 h5 v4 h-5 v16 z"/><path d="M1110 206 v-16 h-5 v-4 h5 v-5 h4 v5 h5 v4 h-5 v16 z"/><path d="M1330 204 v-16 h-5 v-4 h5 v-5 h4 v5 h5 v4 h-5 v16 z"/></g>
+    <g transform="translate(0 60)">
+      <path class="arbol" d="M1180 202 C1184 160 1178 120 1186 80 C1170 70 1150 60 1138 40 M1184 104 C1200 90 1216 86 1232 70 M1186 80 C1192 60 1206 46 1210 30 M1182 130 C1168 124 1156 112 1150 100 M1138 40 C1132 32 1130 26 1128 18 M1232 70 C1240 66 1246 60 1250 52" fill="none" stroke-width="7" stroke-linecap="round"/>
+      <g class="reja" fill="none" stroke-width="3"><path d="M520 196 V150 l-3 -6 l3 -6 l3 6 l-3 6"/><path d="M534 196 V150 l-3 -6 l3 -6 l3 6 l-3 6"/><path d="M548 196 V150 l-3 -6 l3 -6 l3 6 l-3 6"/><path d="M562 196 V150 l-3 -6 l3 -6 l3 6 l-3 6"/><path d="M576 196 V150 l-3 -6 l3 -6 l3 6 l-3 6"/><path d="M590 196 V150 l-3 -6 l3 -6 l3 6 l-3 6"/><path d="M604 196 V150 l-3 -6 l3 -6 l3 6 l-3 6"/><path d="M618 196 V150 l-3 -6 l3 -6 l3 6 l-3 6"/><path d="M632 196 V150 l-3 -6 l3 -6 l3 6 l-3 6"/><path d="M646 196 V150 l-3 -6 l3 -6 l3 6 l-3 6"/><path d="M660 196 V150 l-3 -6 l3 -6 l3 6 l-3 6"/><path d="M674 196 V150 l-3 -6 l3 -6 l3 6 l-3 6"/><path d="M688 196 V150 l-3 -6 l3 -6 l3 6 l-3 6"/><path d="M702 196 V150 l-3 -6 l3 -6 l3 6 l-3 6"/><path d="M716 196 V150 l-3 -6 l3 -6 l3 6 l-3 6"/><path d="M730 196 V150 l-3 -6 l3 -6 l3 6 l-3 6"/><path d="M744 196 V150 l-3 -6 l3 -6 l3 6 l-3 6"/><path d="M758 196 V150 l-3 -6 l3 -6 l3 6 l-3 6"/><path d="M772 196 V150 l-3 -6 l3 -6 l3 6 l-3 6"/><path d="M512 160 H788 M512 186 H788"/></g>
+      <g class="lapidas">
+        <path d="M96 200 v-52 a24 24 0 0 1 48 0 v52 z"/>
+        <path d="M170 200 v-34 a16 16 0 0 1 32 0 v34 z"/>
+        <path d="M262 200 v-74 h-14 v-10 h14 v-14 h10 v14 h14 v10 h-14 v74 z"/>
+        <path d="M340 200 v-44 h40 v44 z M334 156 h52 l-26 -16 z"/>
+        <path d="M840 200 v-58 a26 26 0 0 1 52 0 v58 z"/>
+        <path d="M930 200 v-30 a15 15 0 0 1 30 0 v30 z"/>
+        <path d="M1010 200 v-66 h-12 v-9 h12 v-12 h9 v12 h12 v9 h-12 v66 z"/>
+        <path d="M1290 200 v-48 a22 22 0 0 1 44 0 v48 z"/>
+        <path d="M1370 200 v-36 a18 18 0 0 1 36 0 v36 z"/>
+      </g>
+      <text x="120" y="178" class="rip">R.I.P.</text><text x="866" y="174" class="rip">R.I.P.</text><text x="1312" y="178" class="rip">R.I.P.</text>
+    </g>
+    <path class="suelo" d="M0 262 Q360 246 720 258 T1440 252 V320 H0 Z"/>
+    <g class="pasto"><path d="M0 262.0 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M18 262.4 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M36 262.8 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M54 263.2 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M72 263.5 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M90 263.9 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M108 264.3 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M126 264.6 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M144 264.9 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M162 265.2 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M180 265.5 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M198 265.8 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M216 266.0 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M234 266.3 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M252 266.4 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M270 266.6 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M288 266.7 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M306 266.9 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M324 266.9 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M342 267.0 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M360 267.0 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M378 267.0 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M396 266.9 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M414 266.9 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M432 266.8 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M450 266.6 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M468 266.5 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M486 266.3 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M504 266.1 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M522 265.8 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M540 265.6 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M558 265.3 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M576 265.0 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M594 264.7 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M612 264.3 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M630 264.0 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M648 263.6 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M666 263.2 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M684 262.8 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M702 262.4 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M720 262.1 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M738 261.7 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M756 261.3 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M774 260.9 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M792 260.5 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M810 260.1 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M828 259.8 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M846 259.4 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M864 259.1 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M882 258.8 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M900 258.5 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M918 258.2 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M936 258.0 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M954 257.8 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M972 257.6 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M990 257.4 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M1008 257.3 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M1026 257.2 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M1044 257.1 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M1062 257.0 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M1080 257.0 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M1098 257.0 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M1116 257.0 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M1134 257.1 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M1152 257.2 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M1170 257.3 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M1188 257.5 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M1206 257.7 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M1224 257.9 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M1242 258.1 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M1260 258.4 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M1278 258.7 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M1296 259.0 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M1314 259.3 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M1332 259.6 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M1350 260.0 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M1368 260.4 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M1386 260.7 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M1404 261.1 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/><path d="M1422 261.5 l2 -7 l2 7 l3 -10 l2 10 l3 -6 l1 6 z"/></g>
+  </svg>
+  <div class="niebla"></div>
+</div>
+<!-- Bandada que cruza la pantalla al resolver el caso -->
+<div class="bandada" id="bandada" aria-hidden="true">
+  <svg class="murcielago"><use href="#murcielago"/></svg><svg class="murcielago"><use href="#murcielago"/></svg>
+  <svg class="murcielago"><use href="#murcielago"/></svg><svg class="murcielago"><use href="#murcielago"/></svg>
+  <svg class="murcielago"><use href="#murcielago"/></svg><svg class="murcielago"><use href="#murcielago"/></svg>
+</div>
 <header class="cabecera">
   <svg class="ecg" viewBox="0 0 1000 46" preserveAspectRatio="none" aria-hidden="true">
     <path pathLength="1000" d="M0 30 H150 l10 -5 l10 5 H200 l6 6 l10 -30 l9 34 l7 -10 H330 l12 -6 l12 6 H520 l10 -5 l10 5 H570 l6 6 l10 -30 l9 34 l7 -10 H700 l12 -6 l12 6 H1000"/>
   </svg>
   <div>
-    <h1>Ley de Enfriamiento de Newton · <span>Hora de la muerte</span></h1>
+    <h1><svg class="icono-craneo" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C7 2 3.5 5.5 3.5 10c0 2.6 1.2 4.6 3 5.8V19a1 1 0 0 0 1 1h1v-2h1.5v2h4v-2h1.5v2h1a1 1 0 0 0 1-1v-3.2c1.8-1.2 3-3.2 3-5.8C20.5 5.5 17 2 12 2Z"/><circle cx="9" cy="11" r="2.1" class="hueco"/><circle cx="15" cy="11" r="2.1" class="hueco"/><path d="M12 13.4l-1.1 2.2h2.2z" class="hueco"/></svg>Ley de Enfriamiento de Newton · <span>Hora de la muerte</span></h1>
     <p class="ecuacion">dT/dt = −k·(T − T<sub>a</sub>)</p>
   </div>
   <div class="indicadores">
@@ -33,7 +102,14 @@
   <section id="simulador" class="panel-pestana" role="tabpanel">
     <div class="sim">
       <aside class="cuerpo" aria-live="polite">
-        <h2>Estado del cuerpo</h2>
+        <h2>Estado del cuerpo <span class="info"><button type="button" class="info-btn" aria-label="Más información" aria-describedby="infoCuerpo">?</button><span class="info-panel" role="tooltip" id="infoCuerpo">Mueve el deslizador o escribe los días para ver cómo cambia el cuerpo. También cambia al pasar el cursor por la gráfica. Los tiempos son aproximados: dependen del clima, la ropa y el tamaño corporal.</span></span></h2>
+        <div class="explorar">
+          <span>Explorar tiempo desde la muerte</span>
+          <span class="explorar-fila">
+            <input type="range" id="explorar" min="0" max="100" step="0.1" value="0" aria-label="Tiempo desde la muerte">
+            <input type="number" id="explorarDias" min="0" max="62.5" step="0.1" value="0" aria-label="Días desde la muerte"> días
+          </span>
+        </div>
         <div class="escena">
           <div class="mesa">
             <svg class="figura" viewBox="0 0 120 300" role="img" aria-label="Ilustración del cuerpo según el tiempo desde la muerte">
@@ -70,6 +146,7 @@
                   <ellipse cx="41.5" cy="112" rx="4.5" ry="20"/><ellipse cx="43.5" cy="190" rx="4" ry="20"/>
                   <ellipse cx="28" cy="122" rx="3" ry="14"/><ellipse cx="45" cy="245" rx="3" ry="14"/>
                 </g>
+                <path id="gusano" d="M-3 0 q1.5 -1.6 3 0 t3 0" fill="none" stroke="#efe5cc" stroke-width="1.5" stroke-linecap="round"/>
                 <g id="marmolLado" fill="none" stroke="#2f4a1c" stroke-width=".7" stroke-linecap="round">
                   <path d="M45 66 l4 8 l-2 6 l3 7 M49 74 l-5 4"/><path d="M48 176 l2 10 l-1 8 l1 9 M50 186 l-4 5"/>
                   <path d="M31 92 l1 10 l-1 9"/><path d="M42 120 l5 6 l-1 7"/>
@@ -97,6 +174,7 @@
                 <ellipse cx="60" cy="27" rx="13" ry="16" fill="url(#gVolumen)"/>
                 <g id="livor" opacity="0"><use href="#livorLado"/><use href="#livorLado" transform="translate(120 0) scale(-1 1)"/></g>
                 <ellipse id="mancha" cx="50" cy="128" rx="6" ry="6" fill="url(#gVerde)" opacity="0"/>
+                <g id="gusanos" opacity="0"><g transform="translate(54.5 26) rotate(20)"><use href="#gusano" class="gusano"/></g><g transform="translate(65.5 26) rotate(-15)"><use href="#gusano" class="gusano"/></g><g transform="translate(60 36) rotate(0)"><use href="#gusano" class="gusano"/></g><g transform="translate(60 31) rotate(80)"><use href="#gusano" class="gusano"/></g><g transform="translate(54 82) rotate(30)"><use href="#gusano" class="gusano"/></g><g transform="translate(66 86) rotate(-40)"><use href="#gusano" class="gusano"/></g><g transform="translate(52 116) rotate(10)"><use href="#gusano" class="gusano"/></g><g transform="translate(60 111) rotate(-25)"><use href="#gusano" class="gusano"/></g><g transform="translate(68 121) rotate(45)"><use href="#gusano" class="gusano"/></g><g transform="translate(56 128) rotate(-60)"><use href="#gusano" class="gusano"/></g><g transform="translate(64 133) rotate(15)"><use href="#gusano" class="gusano"/></g><g transform="translate(58 146) rotate(70)"><use href="#gusano" class="gusano"/></g><g transform="translate(63 149) rotate(-10)"><use href="#gusano" class="gusano"/></g><g transform="translate(47 190) rotate(60)"><use href="#gusano" class="gusano"/></g><g transform="translate(73 196) rotate(-50)"><use href="#gusano" class="gusano"/></g><g transform="translate(49 236) rotate(20)"><use href="#gusano" class="gusano"/></g></g>
                 <g id="marmoleado" opacity="0"><use href="#marmolLado"/><use href="#marmolLado" transform="translate(120 0) scale(-1 1)"/></g>
                 <g fill="none" stroke="#2b1d18" stroke-linecap="round" stroke-width=".7" opacity=".45">
                   <path d="M47 74 q6 4 12 1 M61 75 q6 3 12 -1"/><circle cx="60" cy="120" r=".9"/>
@@ -114,79 +192,89 @@
               </g>
             </svg>
             <span class="etiqueta-pie" id="etiquetaPie">—</span>
+            <span class="vela izq" aria-hidden="true"></span><span class="vela der" aria-hidden="true"></span>
           </div>
           <div class="termo-col">
             <span id="termoTexto">—</span>
             <div class="termo"><div class="termo-nivel" id="termoNivel"></div></div>
           </div>
         </div>
-        <p class="cuerpo-etapa"><strong id="cuerpoEtapa">—</strong><span id="cuerpoTiempo"></span></p>
+        <p class="cuerpo-etapa"><span class="etapa-fila"><strong id="cuerpoEtapa">—</strong> <span class="info arriba"><button type="button" class="info-btn" aria-label="¿Qué pasa en esta etapa?" aria-describedby="cuerpoDesc">?</button><span class="info-panel" role="tooltip" id="cuerpoDesc"></span></span></span><span id="cuerpoTiempo"></span></p>
+        <p class="senales-titulo">Señales forenses <span class="info arriba"><button type="button" class="info-btn" aria-label="Más información" aria-describedby="infoSenales">?</button><span class="info-panel" role="tooltip" id="infoSenales"><b>Livideces:</b> manchas moradas donde se acumula la sangre (2–12 h).<br><b>Rigidez:</b> los músculos se endurecen; máxima a las 12 h y desaparece hacia las 40 h.<br><b>Putrefacción:</b> descomposición por bacterias, visible desde las 24 h.</span></span></p>
         <ul class="senales">
           <li>Livideces<span><i id="senLivor"></i></span></li>
           <li>Rigidez<span><i id="senRigidez"></i></span></li>
           <li>Putrefacción<span><i id="senPutre"></i></span></li>
         </ul>
-        <label class="explorar">Explorar tiempo desde la muerte
-          <span class="explorar-fila">
-            <input type="range" id="explorar" min="0" max="100" step="0.1" value="0">
-            <input type="number" id="explorarDias" min="0" max="62.5" step="0.1" value="0" aria-label="Días desde la muerte"> días
-          </span></label>
-        <p class="cuerpo-desc" id="cuerpoDesc"></p>
-        <p class="cuerpo-ayuda">Pasa el cursor por la gráfica o mueve el deslizador. Tiempos aproximados: dependen del clima.</p>
       </aside>
       <div class="sim-centro">
+        <!-- Parámetros sobre la gráfica, abiertos por defecto: principales → vista rápida → datos específicos -->
+        <details class="ajustes" open>
+          <summary>Parámetros del caso</summary>
+          <div class="controles">
+            <fieldset class="grupo-principal">
+              <legend>Principales <span class="info"><button type="button" class="info-btn" aria-label="Más información" aria-describedby="infoPrincipales">?</button><span class="info-panel" role="tooltip" id="infoPrincipales"><b>k</b>: qué tan rápido se enfría el cuerpo (1/h). Mayor k = se enfría más rápido.<br><b>Ta</b>: temperatura del cuarto. Es el equilibrio al que tienden todas las curvas.</span></span></legend>
+              <label class="deslizador"><span>k (1/h)</span>
+                <input type="range" id="kRango" min="0.01" max="1" step="0.0001">
+                <input type="number" id="kNum" min="0.01" max="1" step="0.0001" aria-label="k"></label>
+              <label class="deslizador"><span>Ta (°C)</span>
+                <input type="range" id="TaRango" min="0" max="40" step="0.1">
+                <input type="number" id="TaNum" min="0" max="40" step="0.1" aria-label="Ta"></label>
+            </fieldset>
+            <fieldset class="grupo-rapido">
+              <legend>Vista rápida <span class="info"><button type="button" class="info-btn" aria-label="Más información" aria-describedby="infoVista">?</button><span class="info-panel" role="tooltip" id="infoVista"><b>Campo:</b> flechas con la pendiente dT/dt en cada punto.<br><b>Isoclinas:</b> líneas donde la pendiente es la misma.<br><b>Equilibrio:</b> T = Ta, estable: todas las curvas se acercan.<br><b>37 °C:</b> temperatura en vida; donde la curva la cruza es la hora de muerte.<br>Haz clic en la gráfica para trazar una solución desde ese punto.</span></span></legend>
+              <div class="chips">
+                <label class="chip"><input type="checkbox" data-ver="campo">Campo</label>
+                <label class="chip"><input type="checkbox" data-ver="isoclinas">Isoclinas</label>
+                <label class="chip"><input type="checkbox" data-ver="equilibrio">Equilibrio</label>
+                <label class="chip"><input type="checkbox" data-ver="vida">37 °C</label>
+              </div>
+              <div class="botones">
+                <button class="btn" id="btnLimpiar">Limpiar curvas</button>
+                <button class="btn" id="btnReset">Restablecer</button>
+              </div>
+            </fieldset>
+            <fieldset class="grupo-detalle">
+              <legend>Datos específicos del caso <span class="info"><button type="button" class="info-btn" aria-label="Más información" aria-describedby="infoDatos">?</button><span class="info-panel" role="tooltip" id="infoDatos"><b>T0:</b> temperatura del cuerpo al hallarlo (t = 0).<br><b>t1, T1:</b> segunda medición, t1 horas después.<br><b>T en vida:</b> temperatura normal del cuerpo (37 °C).<br><b>Calcular k:</b> obtiene k con las dos mediciones: k = −ln((T1 − Ta)/(T0 − Ta)) / t1.</span></span></legend>
+              <div class="rejilla-campos">
+                <label>Hora del hallazgo<input type="time" id="hallazgo"></label>
+                <label>T0 (°C) en t = 0<input type="number" id="T0" step="0.1"></label>
+                <label>t1 (h)<input type="number" id="t1" step="0.1" min="0.1"></label>
+                <label>T1 (°C) en t1<input type="number" id="T1" step="0.1"></label>
+                <label>T en vida (°C)<input type="number" id="Tvida" step="0.1"></label>
+                <button class="btn" id="btnK" title="Calcula k a partir de la 2.ª medición (t1, T1)">Calcular k</button>
+              </div>
+            </fieldset>
+          </div>
+        </details>
         <div class="lienzo-caja" id="lienzoCaja">
           <canvas id="lienzo" aria-label="Plano tiempo-temperatura: haz clic para trazar una solución"></canvas>
         </div>
-        <div class="controles">
-          <fieldset>
-            <legend>Parámetros de la EDO</legend>
-            <label class="deslizador"><span>k (1/h)</span>
-              <input type="range" id="kRango" min="0.01" max="1" step="0.0001">
-              <input type="number" id="kNum" min="0.01" max="1" step="0.0001" aria-label="k"></label>
-            <label class="deslizador"><span>Ta (°C)</span>
-              <input type="range" id="TaRango" min="0" max="40" step="0.1">
-              <input type="number" id="TaNum" min="0" max="40" step="0.1" aria-label="Ta"></label>
-          </fieldset>
-          <fieldset>
-            <legend>Datos del caso</legend>
-            <div class="rejilla-campos">
-              <label>Hora del hallazgo<input type="time" id="hallazgo"></label>
-              <label>T0 (°C) en t = 0<input type="number" id="T0" step="0.1"></label>
-              <label>t1 (h)<input type="number" id="t1" step="0.1" min="0.1"></label>
-              <label>T1 (°C) en t1<input type="number" id="T1" step="0.1"></label>
-              <label>T en vida (°C)<input type="number" id="Tvida" step="0.1"></label>
-            </div>
-            <div class="botones">
-              <button class="btn" id="btnK">Calcular k con la 2.ª medición</button>
-              <button class="btn primario" id="btnResolver">Resolver caso</button>
-            </div>
-          </fieldset>
-          <fieldset>
-            <legend>Mostrar</legend>
-            <div class="casillas">
-              <label><input type="checkbox" data-ver="campo">Campo de direcciones</label>
-              <label><input type="checkbox" data-ver="isoclinas">Isoclinas</label>
-              <label><input type="checkbox" data-ver="equilibrio">Equilibrio</label>
-              <label><input type="checkbox" data-ver="vida">Línea de 37 °C</label>
-            </div>
-            <div class="botones">
-              <button class="btn" id="btnLimpiar">Limpiar soluciones</button>
-              <button class="btn" id="btnReset">Restablecer ejercicio</button>
-            </div>
-          </fieldset>
-        </div>
+        <section class="curvas">
+          <div class="curvas-cabecera">
+            <h3>Curvas solución <span class="info"><button type="button" class="info-btn" aria-label="Más información" aria-describedby="infoCurvas">?</button><span class="info-panel" role="tooltip" id="infoCurvas">Cada curva es la temperatura de un cuerpo hipotético en este mismo cuarto que, a la hora indicada, tenía esa temperatura. Trázala con el formulario o haciendo clic en la gráfica, y pulsa <b>i</b> para ver sus datos.</span></span></h3>
+            <form id="formCurva" class="form-curva">
+              <label>Hora<input type="time" id="curvaHora" value="03:30" required></label>
+              <label>Temperatura (°C)<input type="number" id="curvaT" value="30.9" step="0.1" required></label>
+              <button type="submit" class="btn">Trazar curva</button>
+            </form>
+          </div>
+          <ul class="lista-curvas" id="listaCurvas"></ul>
+        </section>
       </div>
-      <aside class="resultados" aria-live="polite">
-        <h2>Resultados</h2>
+      <aside class="resultados lapida" aria-live="polite">
+        <div class="lapida-cabecera" aria-hidden="true"><span class="lapida-cruz">✝</span><span>Q.E.P.D.</span></div>
+        <h2>Hora estimada de la muerte <span class="info derecha"><button type="button" class="info-btn" aria-label="Más información" aria-describedby="infoLapida">?</button><span class="info-panel" role="tooltip" id="infoLapida">Se busca cuándo la curva del cuerpo valía 37 °C: t = −ln((37 − Ta)/(T0 − Ta)) / k. Sale negativo porque ocurrió antes del hallazgo; se resta a la hora del hallazgo.</span></span></h2>
+        <p id="rMuerte" class="lapida-hora">—</p>
+        <p class="lapida-sub"><span id="rTranscurrido">—</span> antes del hallazgo</p>
+        <button class="btn primario lapida-btn" id="btnResolver">Resolver caso</button>
         <dl>
+          <dt>T al momento del hallazgo</dt><dd id="rThallazgo">—</dd>
           <dt>Constante k</dt><dd id="rK">—</dd>
           <dt>Solución del caso</dt><dd id="rFormula">—</dd>
-          <dt>Hora de muerte estimada</dt><dd id="rMuerte" class="destacado">—</dd>
-          <dt>Tiempo entre muerte y hallazgo</dt><dd id="rTranscurrido">—</dd>
-          <dt>T al momento del hallazgo</dt><dd id="rThallazgo">—</dd>
         </dl>
         <p class="mensaje" id="rMensaje"></p>
+        <div class="lapida-base" aria-hidden="true"><span class="vela"></span><span class="flores"></span><span class="vela"></span></div>
       </aside>
     </div>
   </section>
@@ -253,6 +341,10 @@
   </section>
 </main>
 
+<dialog id="modalCurva" class="modal" aria-labelledby="modalContenido">
+  <form method="dialog" class="modal-cerrar"><button class="btn-quitar" aria-label="Cerrar">×</button></form>
+  <div id="modalContenido"></div>
+</dialog>
 <script src="js/app.js"></script>
 </body>
 </html>

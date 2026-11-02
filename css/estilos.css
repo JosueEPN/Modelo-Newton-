@@ -1,16 +1,18 @@
-/* ===== Tokens de diseño =====
-   Paleta contenida: neutros para casi todo, un acento (rosa) para lo interactivo
-   y un color de alerta (rojo) reservado para el resultado principal. */
+/* ===== Tokens de diseño (escala de Tailwind CSS, sin depender de la librería) =====
+   Grises zinc para el texto, pink-400 como acento interactivo y rose-500 como alerta
+   reservada para el resultado principal. Radios, sombras y anillos siguen Tailwind UI. */
 :root {
   --bg: #120b0f; --superficie: #1a1217; --superficie-2: #241a20;
-  --borde: rgba(255, 255, 255, .07); --borde-fuerte: rgba(255, 255, 255, .14);
-  --texto: #f2e9ed; --texto-2: #a8949d; --texto-3: #7a6870;
-  --acento: #f472b6; --acento-suave: rgba(244, 114, 182, .12);
-  --alerta: #f43f5e; --alerta-suave: rgba(244, 63, 94, .1);
+  --borde: rgba(255, 255, 255, .08); --borde-fuerte: rgba(255, 255, 255, .16);  /* ring-white/10 */
+  --texto: #f4f4f5; --texto-2: #a1a1aa; --texto-3: #71717a;            /* zinc-100 / 400 / 500 */
+  --acento: #f472b6; --acento-hover: #f9a8d4;                          /* pink-400 / 300 */ --acento-suave: rgba(244, 114, 182, .12);
+  --alerta: #f43f5e; --alerta-hover: #fb7185;                          /* rose-500 / 400 */ --alerta-suave: rgba(244, 63, 94, .1);
   --ok: #86efac;
   --e1: 4px; --e2: 8px; --e3: 12px; --e4: 16px; --e5: 24px;
   --t-xs: .75rem; --t-sm: .875rem; --t-md: 1rem; --t-lg: 1.25rem; --t-xl: 1.75rem;
-  --radio: 10px;
+  --velo: rgba(26, 18, 23, .8);
+  --radio: 16px; --radio-sm: 8px;                                       /* rounded-2xl / rounded-lg */
+  --sombra: 0 20px 25px -5px rgb(0 0 0 / .4), 0 8px 10px -6px rgb(0 0 0 / .4);  /* shadow-xl */
   --mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
 }
 * { box-sizing: border-box; }
@@ -22,7 +24,7 @@ sub, sup { font-size: .7em; }
 :focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
 
 /* Rótulo pequeño reutilizado por títulos de panel, leyendas y etiquetas */
-.cuerpo h2, .resultados h2, legend, .indicador span, .resultados dt, .explorar {
+.cuerpo h2, .resultados h2, legend, .indicador span, .resultados dt, .explorar, .senales-titulo {
   font-size: var(--t-xs); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--texto-2);
 }
 
@@ -40,7 +42,7 @@ sub, sup { font-size: .7em; }
 .cabecera h1 span { color: var(--alerta); }
 .ecuacion { margin: var(--e1) 0 0; font-family: var(--mono); color: var(--texto-2); font-size: var(--t-sm); }
 .indicadores { display: grid; grid-template-columns: repeat(4, minmax(110px, auto)); gap: var(--e2); }
-.indicador { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio); padding: 6px var(--e3); }
+.indicador { background: var(--velo); backdrop-filter: blur(3px); border: 1px solid var(--borde); border-radius: var(--radio); padding: 6px var(--e3); }
 .indicador span { display: block; letter-spacing: .05em; }
 .indicador strong { font-size: var(--t-md); font-weight: 600; white-space: nowrap; }
 .indicador.muerte { border-color: rgba(244, 63, 94, .35); }
@@ -58,19 +60,22 @@ main { padding: var(--e4) var(--e5) 32px; }
 .sim { display: grid; gap: var(--e4); grid-template-columns: minmax(0, 1fr); }
 .sim > .sim-centro { order: -1; }
 @media (min-width: 800px) {
-  .sim { grid-template-columns: 210px minmax(0, 1fr); }
+  .sim { grid-template-columns: 270px minmax(0, 1fr); }
   .sim > .sim-centro { order: 0; }
   .sim > .resultados { grid-column: 1 / -1; }
 }
 @media (min-width: 1200px) {
-  .sim { grid-template-columns: 230px minmax(0, 1fr) 270px; }
+  .sim { grid-template-columns: 320px minmax(0, 1fr) 300px; }
   .sim > .resultados { grid-column: auto; }
 }
-.lienzo-caja { position: relative; height: 60vh; min-height: 300px; background: var(--superficie);
+.lienzo-caja { position: relative; height: 42vh; min-height: 300px; background: var(--superficie);
   border: 1px solid var(--borde); border-radius: var(--radio); overflow: hidden; }
 .lienzo-caja canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: crosshair; touch-action: manipulation; }
-.controles { display: grid; gap: var(--e3); margin-top: var(--e3); grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
-fieldset { margin: 0; border: 1px solid var(--borde); border-radius: var(--radio); background: var(--superficie); padding: var(--e2) var(--e4) var(--e4); min-width: 0; }
+/* Principales y vista rápida en la primera fila; los datos específicos ocupan la segunda */
+.controles { display: grid; gap: var(--e2); margin-top: var(--e2); grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }
+.grupo-detalle { grid-column: 1 / -1; }
+@media (max-width: 700px) { .controles { grid-template-columns: minmax(0, 1fr); } }
+fieldset { margin: 0; border: 1px solid var(--borde); border-radius: var(--radio); background: var(--velo); backdrop-filter: blur(3px); padding: var(--e2) var(--e4) var(--e4); min-width: 0; }
 legend { padding: 0 var(--e1); }
 .deslizador { display: grid; grid-template-columns: 64px 1fr 80px; gap: var(--e3); align-items: center; margin: var(--e2) 0; }
 .deslizador span { font-size: var(--t-sm); color: var(--texto-2); }
@@ -78,11 +83,15 @@ input[type="range"] { width: 100%; accent-color: var(--acento); }
 input[type="number"], input[type="time"] { width: 100%; background: var(--superficie-2); border: 1px solid var(--borde);
   border-radius: 6px; padding: 5px var(--e2); color-scheme: dark; }
 input[type="number"]:hover, input[type="time"]:hover { border-color: var(--borde-fuerte); }
-.rejilla-campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: var(--e2); }
+.rejilla-campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: var(--e2) var(--e3); align-items: end; }
 .rejilla-campos label { font-size: var(--t-xs); color: var(--texto-2); display: grid; gap: 3px; }
-.casillas { display: grid; grid-template-columns: 1fr 1fr; gap: 6px var(--e3); margin: 6px 0 var(--e1); font-size: var(--t-sm); }
-.casillas label { display: flex; gap: var(--e2); align-items: center; cursor: pointer; }
-.casillas input { accent-color: var(--acento); width: 16px; height: 16px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--e2); }
+.chip { position: relative; padding: 5px var(--e3); border: 1px solid var(--borde-fuerte); border-radius: 999px; cursor: pointer;
+  font-size: var(--t-sm); color: var(--texto-2); transition: background-color .15s, color .15s, border-color .15s; user-select: none; }
+.chip input { position: absolute; opacity: 0; pointer-events: none; }
+.chip:hover { color: var(--texto); }
+.chip:has(input:checked) { background: var(--acento-suave); border-color: var(--acento); color: var(--acento); }
+.chip:has(input:focus-visible) { outline: 2px solid var(--acento); outline-offset: 2px; }
 .botones { display: flex; flex-wrap: wrap; gap: var(--e2); margin-top: var(--e3); }
 .btn { background: var(--superficie-2); border: 1px solid var(--borde); border-radius: 6px; padding: 7px var(--e3); cursor: pointer; font-weight: 600; font-size: var(--t-sm); }
 .btn:hover { border-color: var(--borde-fuerte); }
@@ -90,7 +99,7 @@ input[type="number"]:hover, input[type="time"]:hover { border-color: var(--borde
 .btn.primario:hover { filter: brightness(1.1); }
 
 /* ===== Resultados: valores en neutro; solo la hora de muerte en rojo ===== */
-.resultados { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio); padding: var(--e4); align-self: start; }
+.resultados { background: var(--velo); backdrop-filter: blur(3px); border: 1px solid var(--borde); border-radius: var(--radio); padding: var(--e4); align-self: start; }
 .resultados h2 { margin: 0 0 var(--e1); }
 .resultados dl { margin: 0; }
 .resultados dt { margin-top: var(--e4); letter-spacing: .04em; font-weight: 500; }
@@ -100,10 +109,10 @@ input[type="number"]:hover, input[type="time"]:hover { border-color: var(--borde
 .mensaje:empty { display: none; }
 
 /* ===== Estado del cuerpo ===== */
-.cuerpo { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio); padding: var(--e4); align-self: start; }
+.cuerpo { background: var(--velo); backdrop-filter: blur(3px); border: 1px solid var(--borde); border-radius: var(--radio); padding: var(--e4); align-self: start; }
 .cuerpo h2 { margin: 0 0 var(--e3); }
 .escena { display: flex; gap: var(--e2); align-items: stretch; }
-.mesa { flex: 1; position: relative; height: 50vh; min-height: 320px; border-radius: var(--radio); overflow: hidden;
+.mesa { flex: 1; position: relative; height: 64vh; min-height: 380px; border-radius: var(--radio); overflow: hidden;
   background: linear-gradient(180deg, #1b1e23, #101215); border: 1px solid #4a5059; }
 .figura { position: absolute; inset: var(--e2) 0 28px; width: 100%; height: calc(100% - 36px); }
 .figura #moscas circle { animation: zumbido 1.2s ease-in-out infinite alternate; }
@@ -124,16 +133,14 @@ input[type="number"]:hover, input[type="time"]:hover { border-color: var(--borde
 .senales li { display: grid; grid-template-columns: 78px 1fr; align-items: center; gap: var(--e2); }
 .senales span { height: 4px; border-radius: 2px; background: var(--superficie-2); overflow: hidden; }
 .senales i { display: block; height: 100%; width: 0; background: var(--acento); transition: width .3s; }
-.explorar { display: grid; gap: var(--e1); margin-top: var(--e4); letter-spacing: .04em; font-weight: 500; }
+.explorar { display: grid; gap: var(--e1); margin-bottom: var(--e3); letter-spacing: .04em; font-weight: 500; }
 .explorar-fila { display: flex; align-items: center; gap: 6px; text-transform: none; letter-spacing: 0; font-size: var(--t-sm); }
 .explorar-fila input[type="range"] { flex: 1; min-width: 0; }
 .explorar-fila input[type="number"] { width: 60px; padding: 3px 6px; }
-.cuerpo-desc { margin: var(--e2) 0 0; font-size: var(--t-sm); color: var(--texto-2); }
-.cuerpo-ayuda { margin: var(--e2) 0 0; font-size: var(--t-xs); color: var(--texto-3); }
 
 /* ===== Cálculos paso a paso (letra grande para proyector) ===== */
 .contenido { max-width: 1000px; margin: 0 auto; }
-.paso { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio); padding: var(--e4) var(--e5); margin-bottom: var(--e3); }
+.paso { background: var(--velo); backdrop-filter: blur(3px); border: 1px solid var(--borde); border-radius: var(--radio); padding: var(--e4) var(--e5); margin-bottom: var(--e3); }
 .paso h3 { margin: 0 0 var(--e2); font-size: var(--t-lg); display: flex; align-items: center; gap: var(--e3); }
 .paso .num { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--acento-suave); color: var(--acento); font-size: var(--t-sm); flex: none; }
 .paso p { margin: var(--e1) 0; color: var(--texto-2); font-size: 1.05rem; }
@@ -173,3 +180,199 @@ td.ok { color: var(--ok); }
   .eq { font-size: 1.2rem; }
   .calc-res { font-size: 1.1rem; }
 }
+
+/* ===== Ambientación de cementerio =====
+   Todo va detrás del contenido (z-index 0), sin clics y con poco contraste,
+   así decora los huecos sin competir con la información. */
+.cabecera, .pestanas, main { position: relative; z-index: 1; }
+.escenario { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.luna { position: absolute; top: -6px; right: calc(48% - 65px); width: 130px; height: 130px; opacity: .95;
+  filter: drop-shadow(0 0 18px rgb(251 233 238 / .18)); }
+.cementerio { position: absolute; left: 0; bottom: 0; width: 100%; height: 320px; }
+.niebla { position: absolute; left: -50%; bottom: 0; width: 200%; height: 200px;
+  background:
+    radial-gradient(ellipse 30% 60% at 20% 85%, rgba(210, 190, 200, .11), transparent 70%),
+    radial-gradient(ellipse 25% 50% at 55% 90%, rgba(210, 190, 200, .09), transparent 70%),
+    radial-gradient(ellipse 30% 55% at 85% 88%, rgba(210, 190, 200, .05), transparent 70%);
+  animation: niebla 45s ease-in-out infinite alternate; }
+@keyframes niebla { to { transform: translateX(22%); } }
+
+/* Murciélagos: vuelo ondulado de lado a lado y aleteo de las alas */
+.murcielago { position: absolute; left: 0; width: 40px; height: 19px; fill: #5e4150; }
+.murcielago use { transform-box: fill-box; transform-origin: center; animation: aleteo .32s ease-in-out infinite alternate; }
+@keyframes aleteo { to { transform: scaleY(.4); } }
+.escenario .murcielago { animation: vuelo 34s linear infinite; }
+.escenario .m1 { top: 12%; animation-delay: -6s; }
+.escenario .m2 { top: 30%; width: 24px; height: 12px; animation-duration: 27s; animation-delay: -17s; }
+.escenario .m3 { top: 6%; width: 22px; height: 11px; animation-duration: 42s; animation-delay: -28s; }
+.escenario .m4 { top: 52%; width: 30px; height: 14px; animation-duration: 31s; animation-delay: -11s; }
+.escenario .m5 { top: 70%; width: 26px; height: 12px; animation-duration: 38s; animation-delay: -24s; }
+@keyframes vuelo {
+  0% { transform: translate(-60px, 0); } 25% { transform: translate(25vw, 18px); }
+  50% { transform: translate(50vw, -12px); } 75% { transform: translate(75vw, 14px); }
+  100% { transform: translate(calc(100vw + 60px), 0); }
+}
+.bandada { position: fixed; inset: 0; z-index: 5; pointer-events: none; overflow: hidden; }
+.bandada .murcielago { top: 45%; width: 46px; height: 22px; opacity: 0; fill: #8a6170; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .6)); }
+.bandada.volar .murcielago { animation: bandada 2.4s ease-in forwards; }
+.bandada .murcielago:nth-child(2) { top: 40%; animation-delay: .12s; width: 34px; }
+.bandada .murcielago:nth-child(3) { top: 50%; animation-delay: .25s; }
+.bandada .murcielago:nth-child(4) { top: 36%; animation-delay: .35s; width: 30px; }
+.bandada .murcielago:nth-child(5) { top: 54%; animation-delay: .45s; width: 38px; }
+.bandada .murcielago:nth-child(6) { top: 43%; animation-delay: .6s; width: 28px; }
+@keyframes bandada {
+  0% { opacity: 0; transform: translate(-60px, 60px); } 10% { opacity: .9; }
+  90% { opacity: .9; } 100% { opacity: 0; transform: translate(calc(100vw + 60px), -160px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .niebla, .escenario .murcielago, .murcielago use, .bandada.volar .murcielago { animation: none; }
+  .escenario .murcielago { display: none; }
+}
+
+/* Calavera junto al título */
+.icono-craneo { width: 1.05em; height: 1.05em; vertical-align: -.15em; margin-right: .35em; fill: var(--texto-2); }
+.icono-craneo .hueco { fill: var(--bg); }
+
+/* Resultados como lápida: arco superior, texto centrado y hora de muerte "grabada" */
+.lapida { border-radius: 130px 130px var(--radio) var(--radio); text-align: center; padding-top: var(--e5);
+  background: linear-gradient(180deg, #231920, var(--superficie) 45%); border-color: rgba(255, 255, 255, .1); }
+.lapida-cabecera { display: grid; gap: 2px; margin-bottom: var(--e3); font-family: Georgia, "Times New Roman", serif;
+  color: var(--texto-3); letter-spacing: .3em; font-size: var(--t-sm); }
+.lapida-cruz { font-size: 1.6rem; letter-spacing: 0; line-height: 1; }
+.lapida dd.destacado { font-family: Georgia, "Times New Roman", serif; }
+
+@media (max-width: 760px) {
+  .cementerio { height: 180px; }
+  .luna { right: 4%; top: 52px; width: 76px; height: 76px; }
+  .lapida { border-radius: 90px 90px var(--radio) var(--radio); }
+}
+
+/* ===== Jerarquía: decoración, cuerpo y lápida al frente; los controles se pliegan ===== */
+.ajustes { margin-bottom: var(--e2); }
+.ajustes > summary { cursor: pointer; list-style: none; display: inline-flex; align-items: center; gap: var(--e2);
+  padding: var(--e2) var(--e4); border: 1px solid var(--borde); border-radius: 999px; background: var(--velo);
+  color: var(--texto-2); font-size: var(--t-sm); font-weight: 600; }
+.ajustes > summary::-webkit-details-marker { display: none; }
+.ajustes > summary::before { content: "⚙"; }
+.ajustes > summary:hover { color: var(--texto); border-color: var(--borde-fuerte); }
+.ajustes[open] > summary { color: var(--texto); }
+
+/* Lápida: la hora de muerte grabada es lo primero que se lee */
+.lapida { padding: var(--e5) var(--e5) var(--e4); }
+.lapida h2 { margin: 0; }
+.lapida-hora { margin: var(--e1) 0 0; font: 700 2.6rem/1.1 Georgia, "Times New Roman", serif; color: var(--alerta);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, .6), 0 0 22px rgba(244, 63, 94, .25); }
+.lapida-sub { margin: var(--e1) 0 0; font-size: var(--t-sm); color: var(--texto-2); }
+.lapida-btn { width: 100%; margin-top: var(--e4); padding: 10px; font-size: var(--t-md); }
+.lapida dl { margin-top: var(--e3); padding-top: var(--e2); border-top: 1px dashed var(--borde-fuerte); }
+.lapida dt { margin-top: var(--e3); }
+.lapida dd { font-size: var(--t-sm); color: var(--texto-2); }
+.lapida-base { display: flex; justify-content: center; align-items: flex-end; gap: var(--e5); margin-top: var(--e4); height: 44px; }
+.flores::before { content: "🥀"; font-size: 1.6rem; filter: saturate(.7); }
+
+/* Velas con llama que parpadea */
+.vela { position: relative; display: inline-block; width: 9px; height: 26px; border-radius: 2px 2px 1px 1px;
+  background: linear-gradient(90deg, #cdbfa6, #f1e7d3 45%, #b9a98d); }
+.vela::before { content: ""; position: absolute; left: 50%; bottom: 100%; width: 8px; height: 14px; margin-left: -4px;
+  border-radius: 50% 50% 45% 45% / 60% 60% 40% 40%; background: radial-gradient(circle at 50% 70%, #fff7d6, #ffc14d 45%, #ff7a1a 75%, transparent 80%);
+  transform-origin: 50% 100%; animation: llama 1.6s ease-in-out infinite alternate; }
+.vela::after { content: ""; position: absolute; left: 50%; bottom: 100%; width: 46px; height: 46px; margin: 0 0 -16px -23px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 180, 80, .22), transparent 65%); animation: halo 1.6s ease-in-out infinite alternate; pointer-events: none; }
+@keyframes llama { 0% { transform: scale(1, 1) rotate(-2deg); } 50% { transform: scale(.92, 1.1) rotate(2deg); } 100% { transform: scale(1.05, .94) rotate(-1deg); } }
+@keyframes halo { from { opacity: .7; } to { opacity: 1; } }
+.mesa .vela { position: absolute; bottom: 10px; z-index: 1; }
+.mesa .vela.izq { left: 12px; }
+.mesa .vela.der { right: 12px; }
+@media (prefers-reduced-motion: reduce) { .vela::before, .vela::after { animation: none; } }
+
+/* ===== Componentes al estilo Tailwind UI ===== */
+.indicador, fieldset, .lienzo-caja, .resultados, .cuerpo, .paso {
+  box-shadow: var(--sombra), inset 0 1px 0 rgb(255 255 255 / .04); }
+.indicador { border-radius: 12px; }
+input[type="number"], input[type="time"] { border-radius: var(--radio-sm); background: rgb(255 255 255 / .05);
+  border-color: rgb(255 255 255 / .1); transition: box-shadow .15s, border-color .15s; }
+input[type="number"]:focus, input[type="time"]:focus { outline: none; border-color: transparent; box-shadow: 0 0 0 2px var(--acento); }
+.btn { border-radius: var(--radio-sm); transition: background-color .15s, border-color .15s; box-shadow: 0 1px 2px rgb(0 0 0 / .3); }
+.btn:hover { background: rgb(255 255 255 / .08); }
+.btn.primario:hover { background: var(--alerta-hover); border-color: var(--alerta-hover); filter: none; }
+.ajustes > summary { transition: color .15s, border-color .15s; }
+
+/* ===== Luna con cráteres, sombra de fase y nubes que pasan ===== */
+.luna .nubes { animation: nubes 22s ease-in-out infinite alternate; }
+@keyframes nubes { from { transform: translateX(-18px); } to { transform: translateX(22px); } }
+
+/* ===== Cementerio: profundidad por capas ===== */
+.cementerio .colina { fill: url(#gColina); }
+.cementerio .lejanas { fill: #1c1217; }
+.cementerio .arbol { stroke: #24181e; }
+.cementerio .reja { stroke: #2e2028; }
+.cementerio .lapidas { fill: url(#gLapida); stroke: rgb(255 255 255 / .06); stroke-width: 1; }
+.cementerio .rip { font: 700 11px Georgia, serif; fill: #1f151a; letter-spacing: 1px; paint-order: stroke; stroke: rgb(255 255 255 / .07); stroke-width: .6px; }
+.cementerio .suelo { fill: url(#gSuelo); }
+.cementerio .pasto { fill: #2b1d24; }
+
+/* ===== Larvas que se retuercen sobre el cuerpo ===== */
+.gusano { transform-box: fill-box; transform-origin: center; animation: retorcer .7s ease-in-out infinite alternate; }
+#gusanos g:nth-child(3n) .gusano { animation-duration: .55s; }
+#gusanos g:nth-child(3n + 1) .gusano { animation-duration: .9s; animation-delay: -.3s; }
+@keyframes retorcer { to { transform: scaleX(.6) translateX(.6px) rotate(10deg); } }
+@media (prefers-reduced-motion: reduce) { .gusano, .luna .nubes { animation: none; } }
+
+/* Panel de parámetros compacto para que la gráfica quede a la vista */
+.controles fieldset { padding: 6px var(--e4) var(--e3); }
+.controles .deslizador { margin: 6px 0; }
+.controles .botones { margin-top: var(--e2); }
+.grupo-detalle .rejilla-campos { grid-template-columns: repeat(5, minmax(0, 1fr)) auto; }
+@media (max-width: 900px) { .grupo-detalle .rejilla-campos { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); } }
+
+/* ===== Ventanas informativas «?» =====
+   Se abren al pasar el cursor o al hacer clic/tocar (el botón recibe el foco) y se cierran al salir. */
+.info { position: relative; display: inline-flex; vertical-align: middle; margin-left: 2px; }
+.info-btn { width: 18px; height: 18px; padding: 0; border-radius: 50%; border: 1px solid var(--borde-fuerte); background: rgb(255 255 255 / .04);
+  color: var(--texto-2); font: 700 11px/1 system-ui, sans-serif; cursor: help; transition: color .15s, border-color .15s, background-color .15s; }
+.info-btn:hover, .info-btn:focus-visible, .info:focus-within .info-btn { color: var(--acento); border-color: var(--acento); background: var(--acento-suave); }
+.info-panel { position: absolute; top: calc(100% + 8px); left: -8px; z-index: 30; width: max-content; max-width: min(280px, 80vw);
+  padding: var(--e3) var(--e4); border-radius: 12px; background: #1f171c; border: 1px solid var(--borde-fuerte); box-shadow: var(--sombra);
+  font-size: var(--t-sm); font-weight: 400; line-height: 1.5; letter-spacing: normal; text-transform: none; text-align: left; color: var(--texto);
+  opacity: 0; visibility: hidden; transform: translateY(-4px); transition: opacity .15s, transform .15s, visibility .15s; }
+.info-panel b { color: var(--acento); font-weight: 600; }
+.info.derecha .info-panel { left: auto; right: -8px; }
+.info.arriba .info-panel { top: auto; bottom: calc(100% + 8px); transform: translateY(4px); }   /* para los que están al pie de la pantalla */
+.info:hover .info-panel, .info:focus-within .info-panel { opacity: 1; visibility: visible; transform: none; }
+/* El panel que contiene una ventana abierta se pone por encima de sus vecinos */
+:is(.cuerpo, .resultados, fieldset, .ajustes):has(.info:is(:hover, :focus-within)) { position: relative; z-index: 20; }
+.etapa-fila { display: inline-flex; align-items: center; gap: 6px; }
+.senales-titulo { margin: var(--e3) 0 0; display: flex; align-items: center; gap: 4px; }
+
+/* ===== Curvas solución: formulario, lista y ventana modal ===== */
+.curvas { margin-top: var(--e3); padding: var(--e3) var(--e4); border: 1px solid var(--borde); border-radius: var(--radio);
+  background: var(--velo); backdrop-filter: blur(3px); box-shadow: var(--sombra); }
+.curvas:has(.info:is(:hover, :focus-within)) { position: relative; z-index: 20; }
+.curvas-cabecera { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--e3); }
+.curvas h3 { margin: 0; display: flex; align-items: center; gap: 4px; font-size: var(--t-xs); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--texto-2); }
+.form-curva { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--e2); }
+.form-curva label { display: grid; gap: 3px; font-size: var(--t-xs); color: var(--texto-2); }
+.form-curva input { width: 120px; }
+.lista-curvas { list-style: none; margin: var(--e3) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--e2); }
+.lista-curvas li { display: inline-flex; align-items: center; gap: var(--e2); padding: 4px 6px 4px var(--e3); border-radius: 999px;
+  background: rgb(255 255 255 / .04); border: 1px solid var(--borde); font-size: var(--t-sm); }
+.lista-curvas li.vacia { padding: 4px 0; border: none; background: none; color: var(--texto-3); }
+.muestra { width: 10px; height: 10px; border-radius: 50%; flex: none; display: inline-block; }
+.btn-quitar { width: 22px; height: 22px; padding: 0; border: none; border-radius: 50%; background: none; color: var(--texto-3); font-size: 1.1rem; line-height: 1; cursor: pointer; }
+.btn-quitar:hover { color: var(--alerta); background: var(--alerta-suave); }
+
+.modal { width: min(460px, calc(100vw - 32px)); padding: var(--e5); border: 1px solid var(--borde-fuerte); border-radius: var(--radio);
+  background: #1c1419; color: var(--texto); box-shadow: 0 25px 50px -12px rgb(0 0 0 / .7); }
+.modal::backdrop { background: rgb(10 6 8 / .7); backdrop-filter: blur(2px); }
+.modal[open] { animation: aparecer .18s ease-out; }
+@keyframes aparecer { from { opacity: 0; transform: translateY(8px) scale(.98); } }
+.modal-cerrar { position: absolute; top: var(--e3); right: var(--e3); margin: 0; }
+.modal h3 { margin: 0 0 var(--e2); display: flex; align-items: center; gap: var(--e2); font-size: var(--t-lg); }
+.modal h3 .muestra { width: 14px; height: 14px; }
+.modal-resumen { margin: 0 0 var(--e3); color: var(--texto-2); }
+.modal-resumen b { color: var(--texto); }
+.modal-datos { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: var(--e2) var(--e4); font-size: var(--t-sm); }
+.modal-datos dt { color: var(--texto-2); }
+.modal-datos dd { margin: 0; }
+.modal-nota { margin: var(--e4) 0 var(--e3); font-size: var(--t-xs); color: var(--texto-3); }
+@media (max-width: 480px) { .modal-datos { grid-template-columns: 1fr; gap: 2px; } .modal-datos dd { margin-bottom: var(--e2); } }

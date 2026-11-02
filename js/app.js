@@ -101,6 +101,13 @@ const Formato = {
     return `${Math.floor(m / 60)} h ${m % 60} min`;
   },
   horaInput: min => `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`,
+  // «hh:mm» → horas respecto al hallazgo, dentro de ±12 h (8:00 p.m. queda antes de las 10:00 p.m.)
+  tiempoDesdeHora(valor) {
+    const [h, m] = valor.split(':').map(Number);
+    if (!Number.isFinite(h) || !Number.isFinite(m)) return NaN;
+    const dif = h * 60 + m - Estado.hallazgo;
+    return ((((dif + 720) % 1440) + 1440) % 1440 - 720) / 60;
+  },
 };
 
 // ===== Estado: única fuente de verdad =====
@@ -111,11 +118,11 @@ const Estado = {
       Ta: e.Ta, hallazgo: e.hallazgo, T0: e.T0, t1: e.t1, T1: e.T1, Tvida: e.Tvida,
       k: Modelo.calcularK(e.T0, e.T1, e.t1, e.Ta),
       ver: { campo: true, isoclinas: false, equilibrio: true, vida: true },
-      soluciones: [], caso: null, hover: null,
+      soluciones: [], siguienteColor: 0, caso: null, hover: null,
     });
   },
   agregarSolucion(t0, T0) {
-    this.soluciones.push({ t0, T0, color: CONFIG.paleta[this.soluciones.length % CONFIG.paleta.length], inicio: performance.now() });
+    this.soluciones.push({ t0, T0, color: CONFIG.paleta[this.siguienteColor++ % CONFIG.paleta.length], inicio: performance.now() });
   },
   resolverCaso() { this.caso = { inicio: performance.now() }; },
   analizar() {
@@ -289,12 +296,14 @@ const Render = {
 
   dibujarCurvas(ahora) {
     let animando = false;
-    for (const s of Estado.soluciones) {
+    for (const [i, s] of Estado.soluciones.entries()) {
       const prog = this.progreso(s.inicio, ahora);
       animando ||= prog < 1;
       this.trazo(Solver.curvaCompleta(s.t0, s.T0, Estado), prog, s.color, 2.2);
       this.punto(s.t0, s.T0, s.color);
-      this.etiqueta(`T0: ${s.T0.toFixed(1)}°`, Escala.x(s.t0) + 9, Escala.y(s.T0) - 9, s.color);
+      // Número de curva y su condición inicial; junto al borde derecho la etiqueta se coloca a la izquierda del punto
+      const px = Escala.x(s.t0), aLaIzq = px > Escala.area.x + Escala.area.w - 110;
+      this.etiqueta(`#${i + 1} · ${s.T0.toFixed(1)} °C`, aLaIzq ? px - 9 : px + 9, Escala.y(s.T0) - 9, s.color, aLaIzq ? 'right' : 'left');
     }
     if (Estado.caso) {
       const prog = this.progreso(Estado.caso.inicio, ahora);
@@ -321,7 +330,7 @@ const Render = {
     c.restore();
     this.punto(tm, Tvida, col.muerte, 8);
     const alinear = x > a.x + a.w - 160 ? 'right' : x < a.x + 160 ? 'left' : 'center';
-    this.etiqueta(`Muerte ≈ ${Formato.hora(tm)}`, x, Escala.y(Tvida) + 30, col.muerte, alinear, '700 15px system-ui, sans-serif');
+    this.etiqueta(`Muerte ≈ ${Formato.hora(tm)}`, x, Escala.y(Tvida) - 14, col.muerte, alinear, '700 15px system-ui, sans-serif');
   },
 
   dibujarGuia() {
@@ -378,12 +387,9 @@ const Calculadora = {
   },
   actualizar() {
     const $ = UI.$, n = Formato.num, { k, Ta, T0 } = Estado, A = T0 - Ta;
-    const [h, m] = $('calcHora').value.split(':').map(Number);
-    if (Number.isFinite(h) && Number.isFinite(m)) {
-      // Diferencia con el hallazgo dentro de ±12 h, para que «8:00 p.m.» sea antes de las 10:00 p.m.
-      let dif = h * 60 + m - Estado.hallazgo;
-      dif = ((dif + 720) % 1440 + 1440) % 1440 - 720;
-      const t = dif / 60, e = Math.exp(-k * t), T = Ta + A * e;
+    const t = Formato.tiempoDesdeHora($('calcHora').value);
+    if (Number.isFinite(t)) {
+      const e = Math.exp(-k * t), T = Ta + A * e;
       $('calcHoraRes').innerHTML =
         `t = ${n(t, 2)} h (respecto al hallazgo)<br>` +
         `T = ${n(Ta, 1)} + ${Formato.conSigno(A, 1)}·e<sup>−${n(k, 4)}·${Formato.conSigno(t, 2)}</sup> = ${n(Ta, 1)} + ${Formato.conSigno(A, 1)}·${n(e, 4)}<br>` +
@@ -481,17 +487,17 @@ const Cadaver = {
   ],
   // Fotogramas clave del aspecto; entre ellos se interpola para que el cambio sea continuo
   CLAVES: [
-    { h: -1, piel: '#e8b796', hueso: '#d9cba4', livor: 0, verde: 0, hinchazon: 0, marmol: 0, carne: 1, moscas: 0 },
-    { h: 0, piel: '#ebc8b5', hueso: '#d9cba4', livor: 0, verde: 0, hinchazon: 0, marmol: 0, carne: 1, moscas: 0 },
-    { h: 2, piel: '#efdacd', hueso: '#d9cba4', livor: 0.3, verde: 0, hinchazon: 0, marmol: 0, carne: 1, moscas: 0 },
-    { h: 12, piel: '#ecdcd2', hueso: '#d9cba4', livor: 0.9, verde: 0, hinchazon: 0, marmol: 0, carne: 1, moscas: 0 },
-    { h: 24, piel: '#e3d6c6', hueso: '#d9cba4', livor: 0.9, verde: 0.25, hinchazon: 0, marmol: 0, carne: 1, moscas: 0 },
-    { h: 48, piel: '#cfcfae', hueso: '#d9cba4', livor: 0.8, verde: 0.7, hinchazon: 0.25, marmol: 0.3, carne: 1, moscas: 0.1 },
-    { h: 120, piel: '#9fa877', hueso: '#d9cba4', livor: 0.5, verde: 1, hinchazon: 1, marmol: 0.9, carne: 1, moscas: 0.5 },
-    { h: 240, piel: '#5e4630', hueso: '#d4c49a', livor: 0.2, verde: 0.4, hinchazon: 0.15, marmol: 0.5, carne: 0.85, moscas: 1 },
-    { h: 600, piel: '#4a3524', hueso: '#d9cba4', livor: 0, verde: 0, hinchazon: 0, marmol: 0.2, carne: 0.35, moscas: 0.4 },
-    { h: 1200, piel: '#3d2d20', hueso: '#e4dcc4', livor: 0, verde: 0, hinchazon: 0, marmol: 0, carne: 0, moscas: 0 },
-    { h: 1500, piel: '#3d2d20', hueso: '#f0ebdd', livor: 0, verde: 0, hinchazon: 0, marmol: 0, carne: 0, moscas: 0 },
+    { h: -1, piel: '#e8b796', hueso: '#d9cba4', livor: 0, verde: 0, hinchazon: 0, marmol: 0, carne: 1, moscas: 0, gusanos: 0 },
+    { h: 0, piel: '#ebc8b5', hueso: '#d9cba4', livor: 0, verde: 0, hinchazon: 0, marmol: 0, carne: 1, moscas: 0, gusanos: 0 },
+    { h: 2, piel: '#efdacd', hueso: '#d9cba4', livor: 0.3, verde: 0, hinchazon: 0, marmol: 0, carne: 1, moscas: 0, gusanos: 0 },
+    { h: 12, piel: '#ecdcd2', hueso: '#d9cba4', livor: 0.9, verde: 0, hinchazon: 0, marmol: 0, carne: 1, moscas: 0, gusanos: 0 },
+    { h: 24, piel: '#e3d6c6', hueso: '#d9cba4', livor: 0.9, verde: 0.25, hinchazon: 0, marmol: 0, carne: 1, moscas: 0, gusanos: 0 },
+    { h: 48, piel: '#cfcfae', hueso: '#d9cba4', livor: 0.8, verde: 0.7, hinchazon: 0.25, marmol: 0.3, carne: 1, moscas: 0.1, gusanos: 0.35 },
+    { h: 120, piel: '#9fa877', hueso: '#d9cba4', livor: 0.5, verde: 1, hinchazon: 1, marmol: 0.9, carne: 1, moscas: 0.5, gusanos: 0.9 },
+    { h: 240, piel: '#5e4630', hueso: '#d4c49a', livor: 0.2, verde: 0.4, hinchazon: 0.15, marmol: 0.5, carne: 0.85, moscas: 1, gusanos: 1 },
+    { h: 600, piel: '#4a3524', hueso: '#d9cba4', livor: 0, verde: 0, hinchazon: 0, marmol: 0.2, carne: 0.35, moscas: 0.4, gusanos: 0.4 },
+    { h: 1200, piel: '#3d2d20', hueso: '#e4dcc4', livor: 0, verde: 0, hinchazon: 0, marmol: 0, carne: 0, moscas: 0, gusanos: 0 },
+    { h: 1500, piel: '#3d2d20', hueso: '#f0ebdd', livor: 0, verde: 0, hinchazon: 0, marmol: 0, carne: 0, moscas: 0, gusanos: 0 },
   ],
   HORAS_MAX: 1500,   // ~62 días: llega a la esqueletización
 
@@ -539,6 +545,7 @@ const Cadaver = {
     $('mancha').setAttribute('ry', 6 + 30 * a.verde);
     $('marmoleado').setAttribute('opacity', a.marmol);
     $('moscas').setAttribute('opacity', a.moscas);
+    $('gusanos').setAttribute('opacity', a.gusanos);
     $('pelo').setAttribute('opacity', Math.min(1, a.carne * 1.5));
     $('ojosAbiertos').style.display = muerto ? 'none' : '';
     $('ojosCerrados').style.display = muerto ? '' : 'none';
@@ -575,6 +582,79 @@ function mezclarColor(a, b, p) {
   return '#' + x.map((v, i) => Math.round(v + (y[i] - v) * p).toString(16).padStart(2, '0')).join('');
 }
 
+// ===== Curvas solución: trazar por datos, listarlas y ver su información =====
+const Curvas = {
+  iniciar() {
+    const $ = UI.$;
+    $('formCurva').addEventListener('submit', e => {
+      e.preventDefault();
+      const t0 = Formato.tiempoDesdeHora($('curvaHora').value), T0 = parseFloat($('curvaT').value);
+      if (!Number.isFinite(t0) || !Number.isFinite(T0)) return;
+      Estado.agregarSolucion(t0, T0);
+      actualizar();
+    });
+    // Delegación: un solo listener para los botones de todas las filas
+    $('listaCurvas').addEventListener('click', e => {
+      const boton = e.target.closest('button[data-accion]');
+      if (!boton) return;
+      const i = +boton.dataset.indice;
+      if (boton.dataset.accion === 'ver') this.abrir(i);
+      else this.borrar(i);
+    });
+    $('modalCurva').addEventListener('click', e => {
+      if (e.target.dataset.accion === 'borrar') { this.borrar(+e.target.dataset.indice); $('modalCurva').close(); }
+    });
+  },
+
+  borrar(i) {
+    Estado.soluciones.splice(i, 1);
+    actualizar();
+  },
+
+  listar() {
+    const lista = UI.$('listaCurvas');
+    if (!Estado.soluciones.length) {
+      lista.innerHTML = '<li class="vacia">Aún no hay curvas: haz clic en la gráfica o usa el formulario.</li>';
+      return;
+    }
+    lista.innerHTML = Estado.soluciones.map((s, i) => `
+      <li>
+        <span class="muestra" style="background:${s.color}"></span>
+        <span class="curva-texto">#${i + 1} · ${Formato.grados(s.T0)} a las ${Formato.hora(s.t0)}</span>
+        <button type="button" class="info-btn" data-accion="ver" data-indice="${i}" aria-label="Ver información de la curva ${i + 1}">i</button>
+        <button type="button" class="btn-quitar" data-accion="borrar" data-indice="${i}" aria-label="Eliminar curva ${i + 1}">×</button>
+      </li>`).join('');
+  },
+
+  // Datos de la curva calculados con la solución exacta y los parámetros actuales
+  abrir(i) {
+    const s = Estado.soluciones[i], { k, Ta, Tvida } = Estado, n = Formato.num, A = s.T0 - Ta;
+    const m0 = Modelo.pendiente(s.T0, Estado);
+    const tVida = s.t0 + Modelo.tiempoMuerte(Tvida, s.T0, Ta, k);
+    const tCerca = Math.abs(A) > 1 ? s.t0 + Math.log(Math.abs(A)) / k : NaN;   // cuando queda a 1 °C de Ta
+    const comportamiento = Math.abs(A) < 1e-9 ? 'Está en equilibrio: su temperatura no cambia.'
+      : A > 0 ? `Está más caliente que el cuarto: <b>se enfría</b> hacia ${Formato.grados(Ta)}.`
+      : `Está más fría que el cuarto: <b>se calienta</b> hacia ${Formato.grados(Ta)}.`;
+    const fila = (titulo, valor) => `<dt>${titulo}</dt><dd>${valor}</dd>`;
+    UI.$('modalContenido').innerHTML = `
+      <h3><span class="muestra" style="background:${s.color}"></span>Curva #${i + 1}</h3>
+      <p class="modal-resumen">${comportamiento}</p>
+      <dl class="modal-datos">
+        ${fila('Punto de partida', `${Formato.grados(s.T0)} a las ${Formato.hora(s.t0)} (t = ${n(s.t0, 2)} h)`)}
+        ${fila('Ecuación', `T(t) = ${n(Ta, 1)} ${A < 0 ? '−' : '+'} ${n(Math.abs(A), 1)}·e<sup>−${n(k, 4)}·(t ${s.t0 < 0 ? '+' : '−'} ${n(Math.abs(s.t0), 2)})</sup>`)}
+        ${fila('Pendiente inicial', `dT/dt = ${n(m0, 3)} °C/h`)}
+        ${fila(`Temperatura al hallazgo (${Formato.hora(0)})`, Formato.grados(Modelo.solucionExacta(0, s.t0, s.T0, Estado), 2))}
+        ${fila(`Cruce con ${n(Tvida, 1)} °C`, Number.isFinite(tVida)
+          ? `${Formato.hora(tVida)} (t = ${n(tVida, 2)} h)${tVida <= s.t0 ? ' — si fuera un cuerpo, esa sería su hora de muerte' : ''}`
+          : `Nunca alcanza ${Formato.grados(Tvida)}`)}
+        ${fila('A 1 °C del ambiente', Number.isFinite(tCerca) ? `${Formato.hora(tCerca)} (${Formato.duracion(tCerca - s.t0)} después)` : 'Ya está a menos de 1 °C')}
+      </dl>
+      <p class="modal-nota">Valores con la fórmula exacta; la línea se dibuja con RK4 (diferencia &lt; 0.001 %).</p>
+      <button type="button" class="btn" data-accion="borrar" data-indice="${i}">Eliminar curva</button>`;
+    UI.$('modalCurva').showModal();
+  },
+};
+
 // ===== Escenarios de la pestaña Discusión =====
 const Escenarios = {
   condiciones: () => [44, 37, 30, 20, 12, 6, 1].forEach(T => Estado.agregarSolucion(-6, T)),
@@ -606,7 +686,7 @@ const UI = {
     }));
 
     this.$('btnK').addEventListener('click', () => this.calcularK());
-    this.$('btnResolver').addEventListener('click', () => { Estado.resolverCaso(); actualizar(); });
+    this.$('btnResolver').addEventListener('click', () => { Estado.resolverCaso(); actualizar(); this.soltarMurcielagos(); });
     this.$('btnLimpiar').addEventListener('click', () => { Estado.soluciones = []; Estado.caso = null; actualizar(); });
     this.$('btnReset').addEventListener('click', () => { Estado.restablecer(); this.sincronizarEntradas(); actualizar(); });
 
@@ -634,6 +714,14 @@ const UI = {
       Render.programar();
     });
     lienzo.addEventListener('pointerleave', () => { Estado.hover = null; Cadaver.mostrar(0); Render.programar(); });
+  },
+
+  // Reinicia la animación de la bandada (quitar la clase y forzar un reflujo la vuelve a disparar)
+  soltarMurcielagos() {
+    const bandada = this.$('bandada');
+    bandada.classList.remove('volar');
+    void bandada.offsetWidth;
+    bandada.classList.add('volar');
   },
 
   // Deslizador y caja numérica comparten un mismo valor del estado
@@ -699,6 +787,7 @@ const UI = {
 
     Cadaver.mostrar(Estado.hover ? Escala.t(Estado.hover.x) : 0);
     Calculadora.actualizar();
+    Curvas.listar();
     if (!$('pasos').hidden) $('pasosContenido').innerHTML = generarPasos();
   },
 };
@@ -725,6 +814,7 @@ function autoverificar() {
 Estado.restablecer();
 UI.iniciar();
 Calculadora.iniciar();
+Curvas.iniciar();
 Cadaver.iniciar();
 UI.sincronizarEntradas();
 Render.iniciar(UI.$('lienzo'), UI.$('lienzoCaja'));
